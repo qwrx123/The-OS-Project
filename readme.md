@@ -21,12 +21,12 @@ wsl --install -d Debian
 
 **Debian:**
 ```bash
-sudo apt install build-essential
+sudo apt install build-essential wget
 ```
 
 **Arch:**
 ```bash
-sudo pacman -S base-devel
+sudo pacman -S base-devel wget
 ```
 
 #### 2. Download Cross-Compiling Toolchain
@@ -39,8 +39,8 @@ sudo pacman -S base-devel
 
 ```bash
 wget <target>
-sudo tar -xf --no-same-owner <target>
-sudo rm <target>/{*manifest.txt,licence.txt}
+sudo tar --no-same-owner -xf <target>
+sudo rm <target>/{*manifest.txt,license.txt}
 sudo cp -rv <target>/* /usr
 sudo rm -rf <target>
 ```
@@ -53,3 +53,22 @@ yay -S aarch64-none-elf-toolchain
 **Gentoo:**
 
 See the [Gentoo Crossdev Wiki](https://wiki.gentoo.org/wiki/Crossdev) for instructions.
+
+#### 3. Install QEMU (Optional)
+
+**Debian:**
+```bash
+sudo apt install qemu-utils qemu-system-aarch64
+```
+
+**Arch:**
+```bash
+sudo pacman -S qemu-base
+```
+
+**Gentoo:**
+
+With the USE flag `QEMU_SOFTMMU_TARGETS: aarch64`:
+```bash
+emerge --ask app-emulation/qemu
+```

@@ -24,3 +24,9 @@ clean:
 
 run: kernel.bin
 	qemu-system-aarch64 -M virt -cpu cortex-a57 -m 2G -nographic -device loader,file=kernel.bin,addr=0x80000000,cpu-num=0
+
+format:
+	@git ls-files '*.c' '*.h' | xargs -r clang-format -i
+
+format-check:
+	@git ls-files '*.c' '*.h' | xargs -r clang-format --dry-run -Werror

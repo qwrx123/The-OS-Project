@@ -1,4 +1,4 @@
-#include "uart.c"
+#include "uart.h"
 
 int kernel_init(void *)
 {

@@ -31,10 +31,12 @@ target_link_options(kernel PRIVATE -nostdlib -T ${CMAKE_SOURCE_DIR}/linker.ld)
 
 add_subdirectory(arch/arm64/kernel)
 add_subdirectory(init)
+add_subdirectory(driver)
 
 target_link_libraries(kernel
   arch_kernel
-  init)
+  init
+  driver)
   
 set_target_properties(kernel PROPERTIES OUTPUT_NAME kernel SUFFIX .elf)
 

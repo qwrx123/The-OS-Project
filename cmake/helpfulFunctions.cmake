@@ -7,7 +7,7 @@ function(registerFilesToFormat)
 
 	if (NOT TARGET_FILES)
 		message("Files list is empty")
-		reutrn()
+		return()
 	endif()
 
 	foreach(file IN LISTS TARGET_FILES)

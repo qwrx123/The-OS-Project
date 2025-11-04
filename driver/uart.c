@@ -1,6 +1,8 @@
 #include "uart.h"
-#include "stddef.h"
+#include "kernel/stddef.h"
+#ifdef TESTING
 
+#endif
 static uart_regs_t *UART = (uart_regs_t *)UARTADDRESS;
 
 void uart_init(uart_regs_t *uart_device)

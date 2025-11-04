@@ -34,12 +34,28 @@ typedef struct
 	volatile const unsigned int PCellID3;
 } uart_regs_t;
 
-#define UART ((uart_regs_t *)UARTADDRESS)
-
 //Whenever UART is full and you cannot write to it this is the flag
 #define UARTFLAGFULL (1u << 5)
 
+/**
+ * @brief Initialize UART with specific hardware address (or NULL for default).
+ * 
+ * @param uart_device The UART hardware address to be initalized (or NULL for default).
+ */
+void uart_init(uart_regs_t *uart_device);
+
+/**
+ * @brief This function writes a single character to the UART address once the UART Full flag is Unset
+ * 
+ * @param c The character to be written
+ */
 void uart_putc(char c);
+
+/**
+ * @brief This function writes a whole string to the UART device, must be NULL terminated
+ * 
+ * @param s String to write to the UART device
+ */
 void uart_puts(char *s);
 
 #endif

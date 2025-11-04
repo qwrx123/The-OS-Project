@@ -2,10 +2,10 @@
 
 void uart_putc(char c)
 {
-	while (UARTFR & UARTFLAGFULL)
+	while (UART->FR & UARTFLAGFULL)
 	{
 	}
-	UARTDR = (unsigned int)c;
+	UART->DR = (unsigned int)c;
 }
 
 void uart_puts(char *s)

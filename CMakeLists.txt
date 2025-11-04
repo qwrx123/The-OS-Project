@@ -20,6 +20,9 @@ file(WRITE null.c "") #Needed to make a executable without a source
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(helpfulFunctions)
 
+#vscode support
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Add clang-format support
 find_program(CLANG_FORMAT clang-format)
 
@@ -32,6 +35,7 @@ target_link_options(kernel PRIVATE -nostdlib -T ${CMAKE_SOURCE_DIR}/linker.ld)
 add_subdirectory(arch/arm64/kernel)
 add_subdirectory(init)
 add_subdirectory(driver)
+add_subdirectory(include)
 
 target_link_libraries(kernel
   arch_kernel

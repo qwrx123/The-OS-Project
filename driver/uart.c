@@ -5,7 +5,7 @@ static uart_regs_t *UART = (uart_regs_t *)UARTADDRESS;
 
 void uart_init(uart_regs_t *uart_device)
 {
-	if (uart_device == NULL)
+	if (uart_device != NULL)
 	{
 		UART = uart_device;
 	}

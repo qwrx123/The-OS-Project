@@ -1,8 +1,11 @@
 #include "uart.h"
 #include "kernel/stddef.h"
-#ifdef TESTING
 
+#ifdef TESTING
+void (*uart_fr_callback)() = NULL;
+void (*uart_dr_callback)() = NULL;
 #endif
+
 static uart_regs_t *UART = (uart_regs_t *)UARTADDRESS;
 
 void uart_init(uart_regs_t *uart_device)
@@ -21,8 +24,22 @@ void uart_putc(char c)
 {
 	while (UART->FR & UARTFLAGFULL)
 	{
+#ifdef TESTING
+		// Call the test callback if it's set
+		if (uart_fr_callback != NULL)
+		{
+			uart_fr_callback();
+		}
+#endif
 	}
 	UART->DR = (unsigned int)c;
+#ifdef TESTING
+	// Call the test callback if it's set
+	if (uart_dr_callback != NULL)
+	{
+		uart_dr_callback();
+	}
+#endif
 }
 
 void uart_puts(char *s)

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-
+#include <iostream>
 extern "C" {
     #include "uart.h"
 }
@@ -36,26 +36,77 @@ typedef struct
 static uart_mock_regs_t UARTMOCK  = {0};
 #define UARTDEFAULTRESET 100;
 static int UARTRESETCYCLES = 0;
+static int UARTFRREAD = 0;
+static std::string console;
 extern void (*uart_fr_callback)();
 extern void (*uart_dr_callback)();
 
 void uart_fr_callback_test() {
+    UARTFRREAD++;
     if (UARTRESETCYCLES == 0)
     {
-        (UARTMOCK.FR) &= 0xffffffef;
+        UARTMOCK.FR &= 0xffffffdf;
         UARTRESETCYCLES = UARTDEFAULTRESET;
         return;
     }
-    UARTRESETCYCLES--;
+    if (UARTRESETCYCLES > 0)
+    {
+        UARTRESETCYCLES--;
+    }
 }
 
 void uart_dr_callback_test() {
-    UARTMOCK.FR |= 0x10;
+    UARTMOCK.FR |= 0x20;
+    console.push_back(UARTMOCK.DR);
 }
 
-TEST(UART, putc_clear_flag)
+class UART : public ::testing::Test {
+
+  protected:
+    
+
+    UART() {
+        
+    }
+
+    virtual ~UART() {
+    }
+
+    virtual void SetUp() {
+        std::cout << "here";
+        UARTMOCK = {0};
+        uart_init(reinterpret_cast<uart_regs_t*>(&UARTMOCK));
+        UARTRESETCYCLES = UARTDEFAULTRESET;
+        UARTFRREAD = 0;
+        uart_fr_callback = &uart_fr_callback_test;
+        uart_dr_callback = &uart_dr_callback_test;
+        console.clear();
+    }
+
+    virtual void TearDown() {
+
+    }
+
+  };
+
+
+
+TEST_F(UART, putc_clear_flag)
 {
-    uart_init(reinterpret_cast<uart_regs_t*>(&UARTMOCK));
     uart_putc('a');
     ASSERT_EQ('a', UARTMOCK.DR);
+}
+
+TEST_F(UART, putc_full_flag_nohang)
+{
+    UARTMOCK.FR |= 0x20;
+    uart_putc('a');
+    ASSERT_EQ('a', UARTMOCK.DR);
+    ASSERT_GT(UARTFRREAD, 0);
+}
+
+TEST_F(UART, puts_writes_string)
+{
+    uart_puts("Hello World");
+    ASSERT_EQ(console, "Hello World");
 }

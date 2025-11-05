@@ -42,7 +42,7 @@ void uart_putc(char c)
 #endif
 }
 
-void uart_puts(char *s)
+void uart_puts(const char *s)
 {
 	while (*s)
 	{

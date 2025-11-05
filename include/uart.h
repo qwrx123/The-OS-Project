@@ -56,6 +56,6 @@ void uart_putc(char c);
  * 
  * @param s String to write to the UART device
  */
-void uart_puts(char *s);
+void uart_puts(const char *s);
 
 #endif

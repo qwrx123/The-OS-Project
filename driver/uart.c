@@ -44,6 +44,10 @@ void uart_putc(char c)
 
 void uart_puts(const char *s)
 {
+	if (!s)
+	{
+		return;
+	}
 	while (*s)
 	{
 		uart_putc(*s++);

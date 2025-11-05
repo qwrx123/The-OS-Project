@@ -1,15 +1,21 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(CROSS "aarch64-none-elf-" CACHE STRING "Cross-compile prefix (e.g., aarch64-none-elf)")
+option(BUILD_TESTING "Build testing" OFF)
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+if (NOT BUILD_TESTING)
+  set(CROSS "aarch64-none-elf-" CACHE STRING "Cross-compile prefix (e.g., aarch64-none-elf)")
 
-if(NOT CMAKE_C_COMPILER)
-  set(CMAKE_C_COMPILER "${CROSS}gcc")
-endif()
-if(NOT CMAKE_ASM_COMPILER)
-  set(CMAKE_ASM_COMPILER "${CROSS}gcc")
+  set(CMAKE_SYSTEM_NAME Generic)
+  set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
+  if(NOT CMAKE_C_COMPILER)
+    set(CMAKE_C_COMPILER "${CROSS}gcc")
+  endif()
+  if(NOT CMAKE_ASM_COMPILER)
+    set(CMAKE_ASM_COMPILER "${CROSS}gcc")
+  endif()
+else()
+  add_compile_definitions(TESTING)
 endif()
 
 project(TheOSProject LANGUAGES C ASM)
@@ -20,23 +26,36 @@ file(WRITE null.c "") #Needed to make a executable without a source
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(helpfulFunctions)
 
+
+include(CTest)
+
 #vscode support
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add clang-format support
 find_program(CLANG_FORMAT clang-format)
 
+if (NOT BUILD_TESTING)
 add_executable(kernel
   null.c)
 
 target_compile_options(kernel PRIVATE -nostdlib)
 target_link_options(kernel PRIVATE -nostdlib -T ${CMAKE_SOURCE_DIR}/linker.ld)
+endif()
 
-add_subdirectory(arch/arm64/kernel)
+if (NOT BUILD_TESTING)
+  add_subdirectory(arch/arm64/kernel)
+endif()
 add_subdirectory(init)
 add_subdirectory(driver)
 add_subdirectory(include)
+if (BUILD_TESTING)
+	add_subdirectory(test)
+endif()
 
+if (BUILD_TESTING)
+  return()
+endif()
 target_link_libraries(kernel
   arch_kernel
   init

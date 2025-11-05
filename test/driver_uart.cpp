@@ -110,3 +110,8 @@ TEST_F(UART, puts_writes_string)
 	uart_puts("Hello World");
 	ASSERT_EQ(console, "Hello World");
 }
+
+TEST_F(UART, puts_skips_null)
+{
+	uart_puts(NULL);
+}

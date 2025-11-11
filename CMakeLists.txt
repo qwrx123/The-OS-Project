@@ -45,6 +45,7 @@ endif()
 
 if (NOT BUILD_TESTING)
   add_subdirectory(arch/arm64/kernel)
+  add_subdirectory(arch/arm64/memorymanager)
 endif()
 add_subdirectory(init)
 add_subdirectory(driver)

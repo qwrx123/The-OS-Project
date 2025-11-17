@@ -20,7 +20,7 @@ endif()
 
 project(TheOSProject LANGUAGES C ASM)
 
-file(WRITE null.c "") #Needed to make a executable without a source
+file(WRITE null.c "typedef int make_iso_compilers_happy;\n") #Needed to make a executable without a source
 
 # Include helpful modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -39,7 +39,13 @@ if (NOT BUILD_TESTING)
 add_executable(kernel
   null.c)
 
-target_compile_options(kernel PRIVATE -nostdlib -ffreestanding)
+target_compile_options(kernel PRIVATE
+  -nostdlib 
+  -ffreestanding
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror)
 target_link_options(kernel PRIVATE -nostdlib -T ${CMAKE_SOURCE_DIR}/linker.ld)
 endif()
 

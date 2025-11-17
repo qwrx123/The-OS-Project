@@ -39,13 +39,12 @@ if (NOT BUILD_TESTING)
 add_executable(kernel
   null.c)
 
-target_compile_options(kernel PRIVATE -nostdlib)
+target_compile_options(kernel PRIVATE -nostdlib -ffreestanding)
 target_link_options(kernel PRIVATE -nostdlib -T ${CMAKE_SOURCE_DIR}/linker.ld)
 endif()
 
 if (NOT BUILD_TESTING)
-  add_subdirectory(arch/arm64/kernel)
-  add_subdirectory(arch/arm64/memorymanager)
+  add_subdirectory(arch/arm64)
 endif()
 add_subdirectory(init)
 add_subdirectory(driver)
@@ -58,7 +57,7 @@ if (BUILD_TESTING)
   return()
 endif()
 target_link_libraries(kernel
-  arch_kernel
+  arch_aarch64
   init
   driver)
   

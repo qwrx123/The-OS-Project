@@ -1,12 +1,13 @@
-#add_library(
-#    arch_memorymanager
-#    STATIC
-#    
-#)
+add_library(
+    arch_memorymanager
+    STATIC
+    mmu.c    
+)
 
-registerFilesToFormat(FILES socfunctions.h)
+registerFilesToFormat(FILES socfunctions.h
+                        mmu.c mmu.h)
 
-#target_include_directories(driver
-#    PUBLIC
-#    ${PROJECT_SOURCE_DIR}/include
-#)
+target_include_directories(arch_memorymanager
+    PUBLIC
+    ${PROJECT_SOURCE_DIR}/include
+)

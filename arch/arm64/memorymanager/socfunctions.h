@@ -36,4 +36,17 @@ static inline uint64_t read_ttbr0_el1()
 	return ttbr;
 }
 
+static inline void write_sctlr_el1(uint64_t sctlr)
+{
+	__asm__ volatile("msr SCTLR_EL1, %0" ::"r"(sctlr) : "memory");
+	__asm__ volatile("isb");
+}
+
+static inline uint64_t read_sctlr_el1()
+{
+	uint64_t sctlr;
+	__asm__ volatile("mrs %0, SCTLR_EL1" : "=r"(sctlr));
+	return sctlr;
+}
+
 #endif

@@ -59,7 +59,7 @@ dkms.conf
 *.vscode*
 
 #dummy file
-null.c
+*null.c
 
 #build directory
 *build*

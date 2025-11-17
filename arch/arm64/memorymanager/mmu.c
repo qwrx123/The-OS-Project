@@ -18,7 +18,7 @@
 #define TCR_SH0_INNER (3ULL << 12)
 #define TCR_ORGN0_WBWA (1ULL << 10)
 #define TCR_IRGN0_WBWA (1ULL << 8)
-#define TCR_IPS_40BIT (1ULL << 32)
+#define TCR_IPS_40BIT (2ULL << 32)
 
 #define TCR_EL1_SET                                               \
 	(TCR_T0SZ | TCR_TG0_4K | TCR_SH0_INNER | TCR_ORGN0_WBWA | \

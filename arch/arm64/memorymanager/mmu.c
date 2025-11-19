@@ -1,5 +1,15 @@
 #include "mmu.h"
 #include "socfunctions.h"
+#include "kernel/string.h"
+#include "kernel/types.h"
+
+void init_l1_table(uint64_t *);
+
+void init_l2_table(uint64_t *l1_table, uint64_t l1_index, uint64_t *l2_table);
+
+void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
+		   uint8_t attrindx, uint64_t ap, uint64_t sh, uint64_t pxn,
+		   uint64_t uxn);
 
 #define MAIR_ATTRIDX(attr, idx) ((unsigned long long)(attr) << ((idx) * 8))
 
@@ -99,4 +109,23 @@ void early_mmu_init()
 	write_mair_el1(MAIR_EL1_SET);
 
 	write_tcr_el1(TCR_EL1_SET);
+}
+
+void init_l1_table(uint64_t *pa)
+{
+	memset(pa, 0, PT_ENTRIES * sizeof(uint64_t));
+}
+
+void init_l2_table(uint64_t *l1_table, uint64_t l1_index, uint64_t *l2_table)
+{
+	memset(l2_table, 0, PT_ENTRIES * sizeof(uint64_t));
+	l1_table[l1_index] = TABLE_DESC(l2_table);
+}
+
+void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
+		   uint8_t attrindx, uint64_t ap, uint64_t sh, uint64_t pxn,
+		   uint64_t uxn)
+{
+	l2_table[l2_index] =
+		BLOCK_DESC(pa_block, attrindx, ap, sh, PTE_AF, 0, pxn, uxn);
 }

@@ -6,7 +6,9 @@ add_library(
     null.c
     $<TARGET_OBJECTS:arch_kernel>
     $<TARGET_OBJECTS:arch_memorymanager>
+    $<TARGET_OBJECTS:arch_lib>
 )
 
 add_subdirectory(kernel)
 add_subdirectory(memorymanager)
+add_subdirectory(lib)

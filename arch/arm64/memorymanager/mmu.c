@@ -3,13 +3,45 @@
 #include "kernel/string.h"
 #include "kernel/types.h"
 
-void init_l1_table(uint64_t *);
+/**
+ * @brief 
+ * 
+ * @param pa 
+ */
+void init_l1_table(uint64_t *pa);
 
+/**
+ * @brief 
+ * 
+ * @param l1_table 
+ * @param l1_index 
+ * @param l2_table 
+ */
 void init_l2_table(uint64_t *l1_table, uint64_t l1_index, uint64_t *l2_table);
 
+/**
+ * @brief 
+ * 
+ * @param l2_table 
+ * @param l2_index 
+ * @param pa_block 
+ * @param attrindx 
+ * @param ap 
+ * @param sh 
+ * @param pxn 
+ * @param uxn 
+ */
 void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
 		   uint8_t attrindx, uint64_t ap, uint64_t sh, uint64_t pxn,
 		   uint64_t uxn);
+
+/**
+ * @brief 
+ * 
+ * @param page_table_start 
+ * @param page_table_end 
+ */
+void map_kernel(uint64_t *page_table_start, uint64_t *page_table_end);
 
 #define MAIR_ATTRIDX(attr, idx) ((unsigned long long)(attr) << ((idx) * 8))
 
@@ -128,4 +160,8 @@ void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
 {
 	l2_table[l2_index] =
 		BLOCK_DESC(pa_block, attrindx, ap, sh, PTE_AF, 0, pxn, uxn);
+}
+
+void map_kernel(uint64_t *page_table_start, uint64_t *page_table_end)
+{
 }

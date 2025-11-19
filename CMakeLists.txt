@@ -20,6 +20,9 @@ endif()
 
 project(TheOSProject LANGUAGES C ASM)
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
 file(WRITE null.c "typedef int make_iso_compilers_happy;\n") #Needed to make a executable without a source
 
 # Include helpful modules

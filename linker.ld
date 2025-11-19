@@ -4,6 +4,7 @@ ENTRY(_start)
 SECTIONS
 {
 	. = 0x80000000;
+	__kernel_start = .;
 
 	.text : ALIGN(0x1000) {
 		*(.text)
@@ -37,4 +38,6 @@ SECTIONS
 		. += 0x10000;
 			_stack_top = .;
 	}
+	__kernel_end = .;
+	__kernel_size = __kernel_end - __kernel_start;
 }

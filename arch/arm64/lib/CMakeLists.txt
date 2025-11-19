@@ -6,7 +6,7 @@ add_library(
 
 registerFilesToFormat(FILES memset.c)
 
-target_include_directories(arch_memorymanager
+target_include_directories(arch_lib
     PUBLIC
     ${PROJECT_SOURCE_DIR}/include
 )

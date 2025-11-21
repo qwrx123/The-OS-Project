@@ -126,21 +126,69 @@ void map_kernel(uint64_t *page_table_start, uint64_t *page_table_end);
 #define PTE_PXN (1ULL << 53)
 #define PTE_UXN (1ULL << 54)
 
+/**
+ * @brief 
+ * 
+ * @param pa
+ * @param attrindx
+ * @param ap
+ * @param sh
+ * @param af
+ * @param ng
+ * @param pxn
+ * @param uxn
+ */
 #define PAGE_DESC(pa, attrindx, ap, sh, af, ng, pxn, uxn)                \
 	(PTE_PAGE | MAKE_DESC_ADDR(pa) | PTE_ATTRINDX(attrindx) | (ap) | \
 	 (sh) | (af) | (ng) | (pxn) | (uxn))
 
+/**
+ * @brief 
+ * 
+ * @param pa
+ * @param attrindx
+ * @param ap
+ * @param sh
+ * @param af
+ * @param ng
+ * @param pxnextern uint64_t __page_tables_size;
+ * @param uxn
+ */
 #define BLOCK_DESC(pa, attrindx, ap, sh, af, ng, pxn, uxn)                \
 	(PTE_BLOCK | MAKE_DESC_ADDR(pa) | PTE_ATTRINDX(attrindx) | (ap) | \
 	 (sh) | (af) | (ng) | (pxn) | (uxn))
 
+/**
+ * @brief 
+ * 
+ * @param pa
+ * @param attrindx
+ * @param ap
+ * @param sh
+ * @param af
+ * @param ng
+ * @param pxn
+ * @param uxn
+ */
 #define TABLE_DESC(pa) (PTE_NEXT_TABLE | MAKE_DESC_ADDR(pa))
+
+extern uint8_t __page_tables_start[];
+extern uint8_t __page_tables_end[];
+extern uint64_t __page_tables_size;
+extern uint8_t __kernel_start[];
+extern uint8_t __kernel_end[];
+extern uint64_t __kernel_size;
 
 void early_mmu_init()
 {
 	write_mair_el1(MAIR_EL1_SET);
 
 	write_tcr_el1(TCR_EL1_SET);
+
+	uint64_t *page_tables_start = (uint64_t *)__page_tables_start;
+	uint64_t *page_tables_end = (uint64_t *)__page_tables_end;
+
+	map_kernel(page_tables_start, page_tables_end);
 }
 
 void init_l1_table(uint64_t *pa)
@@ -164,4 +212,25 @@ void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
 
 void map_kernel(uint64_t *page_table_start, uint64_t *page_table_end)
 {
+	extern uint64_t __kernel_size;
+	uint64_t kernel_size = __kernel_size;
+
+	uint64_t block_num = (kernel_size + (L2_BLOCK_SIZE - 1)) >> L2_SHIFT;
+
+	uint64_t *l1_table = page_table_start;
+	uint64_t *l2_table = page_table_start + PT_ENTRIES;
+
+	init_l1_table(l1_table);
+
+	uint64_t kernel_block = (uint64_t)__kernel_start;
+
+	uint64_t l1_index = L1_INDEX(kernel_block);
+	init_l2_table(l1_table, l1_index, l2_table);
+
+	for (int i = 0; i < block_num; i++)
+	{
+		init_l2_block(l2_table, L2_INDEX(kernel_block), kernel_block,
+			      MT_NORMAL, AP_RW_EL1, SH_INNER, 0, PTE_UXN);
+		kernel_block += L2_BLOCK_SIZE;
+	}
 }

@@ -49,4 +49,14 @@ static inline uint64_t read_sctlr_el1()
 	return sctlr;
 }
 
+static inline void mmu_dsb_ish()
+{
+	__asm__ volatile("dsb ish");
+}
+
+static inline void mmu_isb()
+{
+	__asm__ volatile("isb");
+}
+
 #endif

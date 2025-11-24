@@ -126,6 +126,15 @@ void map_kernel(uint64_t *page_table_start, uint64_t *page_table_end);
 #define PTE_PXN (1ULL << 53)
 #define PTE_UXN (1ULL << 54)
 
+#define SCTLR_M (1ULL << 0)
+#define SCTLR_C (1ULL << 2)
+#define SCTLR_I (1ULL << 12)
+#define SCTLR_E0E (1ULL << 24)
+#define SCTLR_EE (1ULL << 25)
+
+#define SCTLR_EL1_SET (SCTLR_M | SCTLR_C | SCTLR_I)
+#define SCTLR_EL1_CLEAR (SCTLR_EE | SCTLR_E0E)
+
 /**
  * @brief 
  * 
@@ -182,13 +191,26 @@ extern uint64_t __kernel_size;
 void early_mmu_init()
 {
 	write_mair_el1(MAIR_EL1_SET);
-
 	write_tcr_el1(TCR_EL1_SET);
+	mmu_isb();
 
 	uint64_t *page_tables_start = (uint64_t *)__page_tables_start;
 	uint64_t *page_tables_end = (uint64_t *)__page_tables_end;
 
 	map_kernel(page_tables_start, page_tables_end);
+
+	write_ttbr0_el1((uint64_t)page_tables_start);
+
+	mmu_dsb_ish();
+	mmu_isb();
+
+	uint64_t sctlr = read_sctlr_el1();
+
+	sctlr &= ~SCTLR_EL1_CLEAR;
+	sctlr |= SCTLR_EL1_SET;
+
+	write_sctlr_el1(sctlr);
+	mmu_isb();
 }
 
 void init_l1_table(uint64_t *pa)

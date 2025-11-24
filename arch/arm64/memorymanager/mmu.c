@@ -185,10 +185,8 @@ uint64_t *map_devices(uint64_t *page_table_start, uint64_t *page_table_end);
 
 extern uint8_t __page_tables_start[];
 extern uint8_t __page_tables_end[];
-extern uint64_t __page_tables_size;
 extern uint8_t __kernel_start[];
 extern uint8_t __kernel_end[];
-extern uint64_t __kernel_size;
 
 void early_mmu_init()
 {
@@ -238,8 +236,7 @@ void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
 
 uint64_t *map_kernel(uint64_t *page_table_start, uint64_t *page_table_end)
 {
-	extern uint64_t __kernel_size;
-	uint64_t kernel_size = __kernel_size;
+	uint64_t kernel_size = __kernel_end - __kernel_start;
 
 	uint64_t block_num = (kernel_size + (L2_BLOCK_SIZE - 1)) >> L2_SHIFT;
 

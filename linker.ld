@@ -39,5 +39,4 @@ SECTIONS
 			_stack_top = .;
 	}
 	__kernel_end = .;
-	__kernel_size = __kernel_end - __kernel_start;
 }

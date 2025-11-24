@@ -2,6 +2,7 @@
 #include "socfunctions.h"
 #include "kernel/string.h"
 #include "kernel/types.h"
+#include "kernel/stddef.h"
 
 /**
  * @brief 
@@ -41,7 +42,8 @@ void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
  * @param page_table_start 
  * @param page_table_end 
  */
-void map_kernel(uint64_t *page_table_start, uint64_t *page_table_end);
+uint64_t *map_kernel(uint64_t *page_table_start, uint64_t *page_table_end);
+uint64_t *map_devices(uint64_t *page_table_start, uint64_t *page_table_end);
 
 #define MAIR_ATTRIDX(attr, idx) ((unsigned long long)(attr) << ((idx) * 8))
 
@@ -197,7 +199,9 @@ void early_mmu_init()
 	uint64_t *page_tables_start = (uint64_t *)__page_tables_start;
 	uint64_t *page_tables_end = (uint64_t *)__page_tables_end;
 
-	map_kernel(page_tables_start, page_tables_end);
+	uint64_t *next_map = map_kernel(page_tables_start, page_tables_end);
+
+	map_devices(next_map, page_tables_end);
 
 	write_ttbr0_el1((uint64_t)page_tables_start);
 
@@ -232,7 +236,7 @@ void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
 		BLOCK_DESC(pa_block, attrindx, ap, sh, PTE_AF, 0, pxn, uxn);
 }
 
-void map_kernel(uint64_t *page_table_start, uint64_t *page_table_end)
+uint64_t *map_kernel(uint64_t *page_table_start, uint64_t *page_table_end)
 {
 	extern uint64_t __kernel_size;
 	uint64_t kernel_size = __kernel_size;
@@ -255,4 +259,30 @@ void map_kernel(uint64_t *page_table_start, uint64_t *page_table_end)
 			      MT_NORMAL, AP_RW_EL1, SH_INNER, 0, PTE_UXN);
 		kernel_block += L2_BLOCK_SIZE;
 	}
+
+	return l2_table + PT_ENTRIES;
+}
+
+uint64_t *map_devices(uint64_t *page_table_start, uint64_t *page_table_end)
+{
+	uint64_t *l1_table = (uint64_t *)__page_tables_start;
+	uint64_t *l2_table;
+	uint64_t *uart_address = (uint64_t *)0x09000000;
+	uint64_t l1_index = L1_INDEX(uart_address);
+
+	if (!(l1_table[l1_index] & PTE_VALID))
+	{
+		l2_table = page_table_start;
+		page_table_start += PT_ENTRIES;
+		init_l2_table(l1_table, l1_index, l2_table);
+	}
+	else
+	{
+		l2_table = (uint64_t *)(l1_table[l1_index] & PTE_ADDR_MASK);
+	}
+
+	init_l2_block(l2_table, L2_INDEX(uart_address), (uint64_t)uart_address,
+		      MT_DEVICE_nGnRnE, AP_RW_EL1, SH_OUTER, PTE_PXN, PTE_UXN);
+
+	return page_table_start;
 }

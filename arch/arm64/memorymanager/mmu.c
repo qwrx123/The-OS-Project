@@ -34,7 +34,7 @@ static void init_l2_table(uint64_t *l1_table, uint64_t l1_index,
  * @param uxn 
  */
 static void init_l2_block(uint64_t *l2_table, uint64_t l2_index,
-			  uint64_t pa_block, uint8_t attrindx, uint64_t ap,
+			  uintptr_t pa_block, uint8_t attrindx, uint64_t ap,
 			  uint64_t sh, uint64_t pxn, uint64_t uxn);
 
 /**
@@ -94,9 +94,9 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 #define PT_ENTRIES (1ULL << PT_INDEX_BITS)
 #define PT_INDEX_MASK (PT_ENTRIES - 1ULL)
 
-#define L1_INDEX(va) (((uint64_t)(va) >> L1_SHIFT) & PT_INDEX_MASK)
-#define L2_INDEX(va) (((uint64_t)(va) >> L2_SHIFT) & PT_INDEX_MASK)
-#define L3_INDEX(va) (((uint64_t)(va) >> L3_SHIFT) & PT_INDEX_MASK)
+#define L1_INDEX(va) (((uintptr_t)(va) >> L1_SHIFT) & PT_INDEX_MASK)
+#define L2_INDEX(va) (((uintptr_t)(va) >> L2_SHIFT) & PT_INDEX_MASK)
+#define L3_INDEX(va) (((uintptr_t)(va) >> L3_SHIFT) & PT_INDEX_MASK)
 
 #define L1_BLOCK_SIZE (1ULL << L1_SHIFT)
 #define L2_BLOCK_SIZE (1ULL << L2_SHIFT)
@@ -109,7 +109,7 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 
 #define PTE_ADDR_MASK (((1ULL << PA_BITS) - 1ULL) & ~((1ULL << 12) - 1ULL))
 
-#define MAKE_DESC_ADDR(pa) ((uint64_t)(pa) & PTE_ADDR_MASK)
+#define MAKE_DESC_ADDR(pa) ((uintptr_t)(pa) & PTE_ADDR_MASK)
 
 #define PTE_ATTRINDX_SHIFT 2
 #define PTE_ATTRINDX(x) (((uint64_t)(x) & 0x7ULL) << PTE_ATTRINDX_SHIFT)
@@ -204,7 +204,7 @@ void early_mmu_init()
 
 	map_devices(next_map, page_tables_end);
 
-	write_ttbr0_el1((uint64_t)page_tables_start);
+	write_ttbr0_el1((uintptr_t)page_tables_start);
 
 	mmu_dsb_ish();
 	mmu_isb();
@@ -231,7 +231,7 @@ static void init_l2_table(uint64_t *l1_table, uint64_t l1_index,
 }
 
 static void init_l2_block(uint64_t *l2_table, uint64_t l2_index,
-			  uint64_t pa_block, uint8_t attrindx, uint64_t ap,
+			  uintptr_t pa_block, uint8_t attrindx, uint64_t ap,
 			  uint64_t sh, uint64_t pxn, uint64_t uxn)
 {
 	l2_table[l2_index] =
@@ -241,21 +241,21 @@ static void init_l2_block(uint64_t *l2_table, uint64_t l2_index,
 static uint64_t *map_kernel(uint64_t *page_table_start,
 			    uint64_t *page_table_end)
 {
-	uint64_t kernel_size = __kernel_end - __kernel_start;
+	size_t kernel_size = __kernel_end - __kernel_start;
 
-	uint64_t block_num = (kernel_size + (L2_BLOCK_SIZE - 1)) >> L2_SHIFT;
+	size_t block_num = (kernel_size + (L2_BLOCK_SIZE - 1)) >> L2_SHIFT;
 
 	uint64_t *l1_table = page_table_start;
 	uint64_t *l2_table = page_table_start + PT_ENTRIES;
 
 	init_l1_table(l1_table);
 
-	uint64_t kernel_block = (uint64_t)__kernel_start;
+	uintptr_t kernel_block = (uintptr_t)__kernel_start;
 
 	uint64_t l1_index = L1_INDEX(kernel_block);
 	init_l2_table(l1_table, l1_index, l2_table);
 
-	for (int i = 0; i < block_num; i++)
+	for (size_t i = 0; i < block_num; i++)
 	{
 		init_l2_block(l2_table, L2_INDEX(kernel_block), kernel_block,
 			      MT_NORMAL, AP_RW_EL1, SH_INNER, 0, PTE_UXN);
@@ -270,7 +270,7 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 {
 	uint64_t *l1_table = (uint64_t *)__page_tables_start;
 	uint64_t *l2_table;
-	uint64_t *uart_address = (uint64_t *)0x09000000;
+	uintptr_t uart_address = 0x09000000;
 	uint64_t l1_index = L1_INDEX(uart_address);
 
 	if (!(l1_table[l1_index] & PTE_VALID))
@@ -284,7 +284,7 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 		l2_table = (uint64_t *)(l1_table[l1_index] & PTE_ADDR_MASK);
 	}
 
-	init_l2_block(l2_table, L2_INDEX(uart_address), (uint64_t)uart_address,
+	init_l2_block(l2_table, L2_INDEX(uart_address), uart_address,
 		      MT_DEVICE_nGnRnE, AP_RW_EL1, SH_OUTER, PTE_PXN, PTE_UXN);
 
 	return page_table_start;

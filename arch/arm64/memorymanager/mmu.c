@@ -9,7 +9,7 @@
  * 
  * @param pa 
  */
-void init_l1_table(uint64_t *pa);
+static void init_l1_table(uint64_t *pa);
 
 /**
  * @brief 
@@ -18,7 +18,8 @@ void init_l1_table(uint64_t *pa);
  * @param l1_index 
  * @param l2_table 
  */
-void init_l2_table(uint64_t *l1_table, uint64_t l1_index, uint64_t *l2_table);
+static void init_l2_table(uint64_t *l1_table, uint64_t l1_index,
+			  uint64_t *l2_table);
 
 /**
  * @brief 
@@ -32,9 +33,9 @@ void init_l2_table(uint64_t *l1_table, uint64_t l1_index, uint64_t *l2_table);
  * @param pxn 
  * @param uxn 
  */
-void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
-		   uint8_t attrindx, uint64_t ap, uint64_t sh, uint64_t pxn,
-		   uint64_t uxn);
+static void init_l2_block(uint64_t *l2_table, uint64_t l2_index,
+			  uint64_t pa_block, uint8_t attrindx, uint64_t ap,
+			  uint64_t sh, uint64_t pxn, uint64_t uxn);
 
 /**
  * @brief 
@@ -42,8 +43,10 @@ void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
  * @param page_table_start 
  * @param page_table_end 
  */
-uint64_t *map_kernel(uint64_t *page_table_start, uint64_t *page_table_end);
-uint64_t *map_devices(uint64_t *page_table_start, uint64_t *page_table_end);
+static uint64_t *map_kernel(uint64_t *page_table_start,
+			    uint64_t *page_table_end);
+static uint64_t *map_devices(uint64_t *page_table_start,
+			     uint64_t *page_table_end);
 
 #define MAIR_ATTRIDX(attr, idx) ((unsigned long long)(attr) << ((idx) * 8))
 
@@ -215,26 +218,28 @@ void early_mmu_init()
 	mmu_isb();
 }
 
-void init_l1_table(uint64_t *pa)
+static void init_l1_table(uint64_t *pa)
 {
 	memset(pa, 0, PT_ENTRIES * sizeof(uint64_t));
 }
 
-void init_l2_table(uint64_t *l1_table, uint64_t l1_index, uint64_t *l2_table)
+static void init_l2_table(uint64_t *l1_table, uint64_t l1_index,
+			  uint64_t *l2_table)
 {
 	memset(l2_table, 0, PT_ENTRIES * sizeof(uint64_t));
 	l1_table[l1_index] = TABLE_DESC(l2_table);
 }
 
-void init_l2_block(uint64_t *l2_table, uint64_t l2_index, uint64_t pa_block,
-		   uint8_t attrindx, uint64_t ap, uint64_t sh, uint64_t pxn,
-		   uint64_t uxn)
+static void init_l2_block(uint64_t *l2_table, uint64_t l2_index,
+			  uint64_t pa_block, uint8_t attrindx, uint64_t ap,
+			  uint64_t sh, uint64_t pxn, uint64_t uxn)
 {
 	l2_table[l2_index] =
 		BLOCK_DESC(pa_block, attrindx, ap, sh, PTE_AF, 0, pxn, uxn);
 }
 
-uint64_t *map_kernel(uint64_t *page_table_start, uint64_t *page_table_end)
+static uint64_t *map_kernel(uint64_t *page_table_start,
+			    uint64_t *page_table_end)
 {
 	uint64_t kernel_size = __kernel_end - __kernel_start;
 
@@ -260,7 +265,8 @@ uint64_t *map_kernel(uint64_t *page_table_start, uint64_t *page_table_end)
 	return l2_table + PT_ENTRIES;
 }
 
-uint64_t *map_devices(uint64_t *page_table_start, uint64_t *page_table_end)
+static uint64_t *map_devices(uint64_t *page_table_start,
+			     uint64_t *page_table_end)
 {
 	uint64_t *l1_table = (uint64_t *)__page_tables_start;
 	uint64_t *l2_table;

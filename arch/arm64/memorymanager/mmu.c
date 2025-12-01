@@ -34,7 +34,7 @@ static void init_l2_table(uint64_t *l1_table, uint64_t l1_index,
  * @param uxn 
  */
 static void init_l2_block(uint64_t *l2_table, uint64_t l2_index,
-			  uintptr_t pa_block, uint8_t attrindx, uint64_t ap,
+			  phys_addr_t pa_block, uint8_t attrindx, uint64_t ap,
 			  uint64_t sh, uint64_t pxn, uint64_t uxn);
 
 /**
@@ -231,7 +231,7 @@ static void init_l2_table(uint64_t *l1_table, uint64_t l1_index,
 }
 
 static void init_l2_block(uint64_t *l2_table, uint64_t l2_index,
-			  uintptr_t pa_block, uint8_t attrindx, uint64_t ap,
+			  phys_addr_t pa_block, uint8_t attrindx, uint64_t ap,
 			  uint64_t sh, uint64_t pxn, uint64_t uxn)
 {
 	l2_table[l2_index] =
@@ -250,7 +250,7 @@ static uint64_t *map_kernel(uint64_t *page_table_start,
 
 	init_l1_table(l1_table);
 
-	uintptr_t kernel_block = (uintptr_t)__kernel_start;
+	phys_addr_t kernel_block = (phys_addr_t)__kernel_start;
 
 	uint64_t l1_index = L1_INDEX(kernel_block);
 	init_l2_table(l1_table, l1_index, l2_table);
@@ -270,7 +270,7 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 {
 	uint64_t *l1_table = (uint64_t *)__page_tables_start;
 	uint64_t *l2_table;
-	uintptr_t uart_address = 0x09000000;
+	phys_addr_t uart_address = 0x09000000;
 	uint64_t l1_index = L1_INDEX(uart_address);
 
 	if (!(l1_table[l1_index] & PTE_VALID))

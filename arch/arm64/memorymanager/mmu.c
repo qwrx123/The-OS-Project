@@ -48,6 +48,10 @@ static uint64_t *map_kernel(uint64_t *page_table_start,
 static uint64_t *map_devices(uint64_t *page_table_start,
 			     uint64_t *page_table_end);
 
+static inline void *phys_to_virt(phys_addr_t pa);
+
+static inline phys_addr_t virt_to_phys(const void *va);
+
 #define MAIR_ATTRIDX(attr, idx) ((unsigned long long)(attr) << ((idx) * 8))
 
 //Locations in the MAIR for different memory types
@@ -238,6 +242,16 @@ static void init_l2_block(uint64_t *l2_table, uint64_t l2_index,
 		BLOCK_DESC(pa_block, attrindx, ap, sh, PTE_AF, 0, pxn, uxn);
 }
 
+static inline void *phys_to_virt(phys_addr_t pa)
+{
+	return (void *)pa;
+}
+
+static inline phys_addr_t virt_to_phys(const void *va)
+{
+	return (phys_addr_t)va;
+}
+
 static uint64_t *map_kernel(uint64_t *page_table_start,
 			    uint64_t *page_table_end)
 {
@@ -250,16 +264,19 @@ static uint64_t *map_kernel(uint64_t *page_table_start,
 
 	init_l1_table(l1_table);
 
-	phys_addr_t kernel_block = (phys_addr_t)__kernel_start;
+	phys_addr_t kernel_block_pa = (phys_addr_t)__kernel_start;
+	uintptr_t kernel_block_va = (uintptr_t)phys_to_virt(kernel_block_pa);
 
-	uint64_t l1_index = L1_INDEX(kernel_block);
+	uint64_t l1_index = L1_INDEX(kernel_block_va);
 	init_l2_table(l1_table, l1_index, l2_table);
 
 	for (size_t i = 0; i < block_num; i++)
 	{
-		init_l2_block(l2_table, L2_INDEX(kernel_block), kernel_block,
-			      MT_NORMAL, AP_RW_EL1, SH_INNER, 0, PTE_UXN);
-		kernel_block += L2_BLOCK_SIZE;
+		init_l2_block(l2_table, L2_INDEX(kernel_block_va),
+			      kernel_block_pa, MT_NORMAL, AP_RW_EL1, SH_INNER,
+			      0, PTE_UXN);
+		kernel_block_va += L2_BLOCK_SIZE;
+		kernel_block_pa += L2_BLOCK_SIZE;
 	}
 
 	return l2_table + PT_ENTRIES;
@@ -270,8 +287,10 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 {
 	uint64_t *l1_table = (uint64_t *)__page_tables_start;
 	uint64_t *l2_table;
-	phys_addr_t uart_address = 0x09000000;
-	uint64_t l1_index = L1_INDEX(uart_address);
+	phys_addr_t uart_address_pa = 0x09000000;
+	uintptr_t uart_address_va = (uintptr_t)phys_to_virt(uart_address_pa);
+
+	uint64_t l1_index = L1_INDEX(uart_address_va);
 
 	if (!(l1_table[l1_index] & PTE_VALID))
 	{
@@ -284,7 +303,7 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 		l2_table = (uint64_t *)(l1_table[l1_index] & PTE_ADDR_MASK);
 	}
 
-	init_l2_block(l2_table, L2_INDEX(uart_address), uart_address,
+	init_l2_block(l2_table, L2_INDEX(uart_address_va), uart_address_pa,
 		      MT_DEVICE_nGnRnE, AP_RW_EL1, SH_OUTER, PTE_PXN, PTE_UXN);
 
 	return page_table_start;

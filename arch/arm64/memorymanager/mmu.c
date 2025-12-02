@@ -1,4 +1,5 @@
 #include "mmu.h"
+#include "board_devices.h"
 #include "socfunctions.h"
 #include "kernel/string.h"
 #include "kernel/types.h"
@@ -53,12 +54,6 @@ static inline void *phys_to_virt(phys_addr_t pa);
 static inline phys_addr_t virt_to_phys(const void *va);
 
 #define MAIR_ATTRIDX(attr, idx) ((unsigned long long)(attr) << ((idx) * 8))
-
-//Locations in the MAIR for different memory types
-#define MT_NORMAL 0
-#define MT_NORMAL_NC 2
-#define MT_DEVICE_nGnRnE 3
-#define MT_DEVICE_nGnRE 4
 
 //
 #define MAIR_ATTR_DEVICE_nGnRnE 0x00
@@ -118,22 +113,8 @@ static inline phys_addr_t virt_to_phys(const void *va);
 #define PTE_ATTRINDX_SHIFT 2
 #define PTE_ATTRINDX(x) (((uint64_t)(x) & 0x7ULL) << PTE_ATTRINDX_SHIFT)
 
-#define PTE_AP_SHIFT 6
-#define AP_RW_EL1 (0ULL << PTE_AP_SHIFT)
-#define AP_RW_EL0 (1ULL << PTE_AP_SHIFT)
-#define AP_RO_EL1 (2ULL << PTE_AP_SHIFT)
-#define AP_RO_EL0 (3ULL << PTE_AP_SHIFT)
-
-#define PTE_SH_SHIFT 8
-#define SH_NONE (0ULL << PTE_SH_SHIFT)
-#define SH_OUTER (2ULL << PTE_SH_SHIFT)
-#define SH_INNER (3ULL << PTE_SH_SHIFT)
-
 #define PTE_AF (1ULL << 10)
 #define PTE_NG (1ULL << 11)
-
-#define PTE_PXN (1ULL << 53)
-#define PTE_UXN (1ULL << 54)
 
 #define SCTLR_M (1ULL << 0)
 #define SCTLR_C (1ULL << 2)
@@ -286,25 +267,34 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 			     uint64_t *page_table_end)
 {
 	uint64_t *l1_table = (uint64_t *)__page_tables_start;
-	uint64_t *l2_table;
-	phys_addr_t uart_address_pa = 0x09000000;
-	uintptr_t uart_address_va = (uintptr_t)phys_to_virt(uart_address_pa);
 
-	uint64_t l1_index = L1_INDEX(uart_address_va);
-
-	if (!(l1_table[l1_index] & PTE_VALID))
+	for (int i = 0; i < early_device_map_count; i++)
 	{
-		l2_table = page_table_start;
-		page_table_start += PT_ENTRIES;
-		init_l2_table(l1_table, l1_index, l2_table);
-	}
-	else
-	{
-		l2_table = (uint64_t *)(l1_table[l1_index] & PTE_ADDR_MASK);
-	}
+		uint64_t *l2_table;
+		const device_config_t *current_device = &early_device_map[i];
+		phys_addr_t device_address_pa = current_device->base_addr;
+		uintptr_t device_address_va =
+			(uintptr_t)phys_to_virt(device_address_pa);
 
-	init_l2_block(l2_table, L2_INDEX(uart_address_va), uart_address_pa,
-		      MT_DEVICE_nGnRnE, AP_RW_EL1, SH_OUTER, PTE_PXN, PTE_UXN);
+		uint64_t l1_index = L1_INDEX(device_address_va);
 
+		if (!(l1_table[l1_index] & PTE_VALID))
+		{
+			l2_table = page_table_start;
+			page_table_start += PT_ENTRIES;
+			init_l2_table(l1_table, l1_index, l2_table);
+		}
+		else
+		{
+			l2_table = (uint64_t *)(l1_table[l1_index] &
+						PTE_ADDR_MASK);
+		}
+
+		init_l2_block(l2_table, L2_INDEX(device_address_va),
+			      device_address_pa, current_device->mem_type,
+			      current_device->access_perm,
+			      current_device->shareability, current_device->pxn,
+			      current_device->uxn);
+	}
 	return page_table_start;
 }

@@ -55,12 +55,6 @@ static inline phys_addr_t virt_to_phys(const void *va);
 
 #define MAIR_ATTRIDX(attr, idx) ((unsigned long long)(attr) << ((idx) * 8))
 
-//
-#define MAIR_ATTR_DEVICE_nGnRnE 0x00
-#define MAIR_ATTR_DEVICE_nGnRE 0x04
-#define MAIR_ATTR_NORMAL_NC 0x44
-#define MAIR_ATTR_NORMAL 0xff
-
 #define TCR_T0SZ (25ULL)
 #define TCR_TG0_4K (0ULL << 14)
 #define TCR_SH0_INNER (3ULL << 12)
@@ -104,11 +98,17 @@ static inline phys_addr_t virt_to_phys(const void *va);
 #define PTE_TABLE (1ULL << 1)
 #define PTE_BLOCK (PTE_VALID)
 #define PTE_NEXT_TABLE (PTE_VALID | PTE_TABLE)
-#define PTE_PAGE (PTE_VALID | PTE_TABLE)
+#define PTE_PAGE (PTE_VALID)
 
-#define PTE_ADDR_MASK (((1ULL << PA_BITS) - 1ULL) & ~((1ULL << 12) - 1ULL))
+#define PTE_ADDR_MASK_PA (((1ULL << PA_BITS) - 1ULL))
+#define MAKE_DESC_ADDR_PAGE(pa) \
+	((uintptr_t)(pa) & (PTE_ADDR_MASK_PA & ~((1ULL << 12) - 1ULL)))
+#define MAKE_DESC_ADDR_L2(pa) \
+	((uintptr_t)(pa) & (PTE_ADDR_MASK_PA & ~((1ULL << 21) - 1ULL)))
+#define MAKE_DESC_ADDR_L1(pa) \
+	((uintptr_t)(pa) & (PTE_ADDR_MASK_PA & ~((1ULL << 30) - 1ULL)))
 
-#define MAKE_DESC_ADDR(pa) ((uintptr_t)(pa) & PTE_ADDR_MASK)
+#define TABLE_ADDR_MASK MAKE_DESC_ADDR_PAGE(~0ULL)
 
 #define PTE_ATTRINDX_SHIFT 2
 #define PTE_ATTRINDX(x) (((uint64_t)(x) & 0x7ULL) << PTE_ATTRINDX_SHIFT)
@@ -137,8 +137,8 @@ static inline phys_addr_t virt_to_phys(const void *va);
  * @param pxn
  * @param uxn
  */
-#define PAGE_DESC(pa, attrindx, ap, sh, af, ng, pxn, uxn)                \
-	(PTE_PAGE | MAKE_DESC_ADDR(pa) | PTE_ATTRINDX(attrindx) | (ap) | \
+#define PAGE_DESC(pa, attrindx, ap, sh, af, ng, pxn, uxn)                     \
+	(PTE_PAGE | MAKE_DESC_ADDR_PAGE(pa) | PTE_ATTRINDX(attrindx) | (ap) | \
 	 (sh) | (af) | (ng) | (pxn) | (uxn))
 
 /**
@@ -153,8 +153,8 @@ static inline phys_addr_t virt_to_phys(const void *va);
  * @param pxnextern uint64_t __page_tables_size;
  * @param uxn
  */
-#define BLOCK_DESC(pa, attrindx, ap, sh, af, ng, pxn, uxn)                \
-	(PTE_BLOCK | MAKE_DESC_ADDR(pa) | PTE_ATTRINDX(attrindx) | (ap) | \
+#define BLOCK_DESC(pa, attrindx, ap, sh, af, ng, pxn, uxn)                   \
+	(PTE_BLOCK | MAKE_DESC_ADDR_L2(pa) | PTE_ATTRINDX(attrindx) | (ap) | \
 	 (sh) | (af) | (ng) | (pxn) | (uxn))
 
 /**
@@ -169,7 +169,7 @@ static inline phys_addr_t virt_to_phys(const void *va);
  * @param pxn
  * @param uxn
  */
-#define TABLE_DESC(pa) (PTE_NEXT_TABLE | MAKE_DESC_ADDR(pa))
+#define TABLE_DESC(va) (PTE_NEXT_TABLE | MAKE_DESC_ADDR_PAGE(va))
 
 extern uint8_t __page_tables_start[];
 extern uint8_t __page_tables_end[];
@@ -287,7 +287,7 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 		else
 		{
 			l2_table = (uint64_t *)(l1_table[l1_index] &
-						PTE_ADDR_MASK);
+						TABLE_ADDR_MASK);
 		}
 
 		init_l2_block(l2_table, L2_INDEX(device_address_va),

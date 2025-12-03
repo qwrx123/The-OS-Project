@@ -6,6 +6,12 @@
 #define MT_DEVICE_nGnRnE 3
 #define MT_DEVICE_nGnRE 4
 
+//
+#define MAIR_ATTR_DEVICE_nGnRnE 0x00
+#define MAIR_ATTR_DEVICE_nGnRE 0x04
+#define MAIR_ATTR_NORMAL_NC 0x44
+#define MAIR_ATTR_NORMAL 0xff
+
 #define PTE_AP_SHIFT 6
 #define AP_RW_EL1 (0ULL << 6)
 #define AP_RW_EL0 (1ULL << 6)

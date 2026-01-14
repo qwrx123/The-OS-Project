@@ -1,6 +1,12 @@
 #ifndef SOCFUNCTIONS_H
 #define SOCFUNCTIONS_H
 
+/**
+ * @file socfunctions.h
+ * @brief This file contains device dependent code for the aarch64 archetectrue
+ * to read and write to SOC registers to enable hardware features
+ */
+
 #include "kernel/types.h"
 
 static inline void write_mair_el1(uint64_t mair)

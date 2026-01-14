@@ -20,7 +20,10 @@ endif()
 
 project(TheOSProject LANGUAGES C ASM)
 
-file(WRITE null.c "") #Needed to make a executable without a source
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+file(WRITE null.c "typedef int make_iso_compilers_happy;\n") #Needed to make a executable without a source
 
 # Include helpful modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -39,12 +42,18 @@ if (NOT BUILD_TESTING)
 add_executable(kernel
   null.c)
 
-target_compile_options(kernel PRIVATE -nostdlib)
+target_compile_options(kernel PRIVATE
+  -nostdlib 
+  -ffreestanding
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror)
 target_link_options(kernel PRIVATE -nostdlib -T ${CMAKE_SOURCE_DIR}/linker.ld)
 endif()
 
 if (NOT BUILD_TESTING)
-  add_subdirectory(arch/arm64/kernel)
+  add_subdirectory(arch/arm64)
 endif()
 add_subdirectory(init)
 add_subdirectory(driver)
@@ -57,7 +66,7 @@ if (BUILD_TESTING)
   return()
 endif()
 target_link_libraries(kernel
-  arch_kernel
+  arch_aarch64
   init
   driver)
   

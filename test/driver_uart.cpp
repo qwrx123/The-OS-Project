@@ -113,5 +113,5 @@ TEST_F(UART, puts_writes_string)
 
 TEST_F(UART, puts_skips_null)
 {
-	uart_puts(NULL);
+	uart_puts(nullptr);
 }

@@ -6,6 +6,12 @@
 #include "kernel/stddef.h"
 
 /**
+ * @brief Enables the mmu
+ * 
+ */
+static void enable_mmu();
+
+/**
  * @brief Initialize the l1 translation table
  * 
  * @param pa The Physical memory address that points to the l1 table
@@ -308,14 +314,7 @@ void early_mmu_init()
 
 	mmu_dsb_ish();
 	mmu_isb();
-
-	uint64_t sctlr = read_sctlr_el1();
-
-	sctlr &= ~SCTLR_EL1_CLEAR;
-	sctlr |= SCTLR_EL1_SET;
-
-	write_sctlr_el1(sctlr);
-	mmu_isb();
+	enable_mmu();
 }
 
 static void init_l1_table(uint64_t *pa)
@@ -412,4 +411,13 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 			      current_device->uxn);
 	}
 	return page_table_start;
+}
+
+static void enable_mmu()
+{
+	uint64_t sctlr = read_sctlr_el1();
+	sctlr &= ~SCTLR_EL1_CLEAR;
+	sctlr |= SCTLR_EL1_SET;
+	write_sctlr_el1(sctlr);
+	mmu_isb();
 }

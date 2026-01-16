@@ -1,3 +1,8 @@
+#
+# Copyright (c) 2026 Nathaniel Smith
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 cmake_minimum_required(VERSION 3.28.3)
 project(TheOSProject LANGUAGES CXX C ASM)
 

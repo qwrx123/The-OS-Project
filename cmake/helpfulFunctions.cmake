@@ -1,3 +1,8 @@
+#
+# Copyright (c) 2026 Nathaniel Smith
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 function(registerFilesToFormat)
 	cmake_parse_arguments(PARSE_ARGV 0 TARGET "" "" "FILES")
 

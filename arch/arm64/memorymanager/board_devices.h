@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) [year] [your name]
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #ifndef BOARD_DEVICES_H
 #define BOARD_DEVICES_H
 

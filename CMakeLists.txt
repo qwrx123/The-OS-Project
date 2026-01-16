@@ -1,3 +1,8 @@
+#
+# Copyright (c) 2026 Nathaniel Smith
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 cmake_minimum_required(VERSION 3.20)
 
 option(BUILD_TESTING "Build testing" OFF)

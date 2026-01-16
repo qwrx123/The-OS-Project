@@ -347,6 +347,7 @@ static inline phys_addr_t virt_to_phys(const void *va)
 	return (phys_addr_t)va;
 }
 
+//Currently only supports <= 1GB of ram
 static uint64_t *map_kernel(uint64_t *page_table_start,
 			    uint64_t *page_table_end)
 {

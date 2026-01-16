@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) [year] [your name]
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #ifndef STDDEF_H
 #define STDDEF_H
 

@@ -1,3 +1,8 @@
+#
+# Copyright (c) 2026 Nathaniel Smith
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 file(WRITE null.c "") #Needed to make a executable without a source
 
 add_library(

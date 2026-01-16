@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) [year] [your name]
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #include <gtest/gtest.h>
 #include <iostream>
 extern "C"

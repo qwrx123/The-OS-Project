@@ -1,3 +1,8 @@
+#
+# Copyright (c) [year] [your name]
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: false

@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) [year] [your name]
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #ifndef UART_H
 #define UART_H
 

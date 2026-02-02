@@ -35,7 +35,18 @@ uintptr_t get_heap_e()
 
 void memallc(uint64_t size)
 {
-    
+    if (size < min_bytes)
+    {
+        heap_e = heap_s + min_bytes;
+    }
+    else if ((heap_s + size) > (heap_s + range))
+    {
+        heap_e = heap_s + range;
+    }
+    else
+    {
+        heap_e = heap_s + size;
+    }
 }
 
 void free_memallc()

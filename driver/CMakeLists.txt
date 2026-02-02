@@ -7,6 +7,7 @@ add_library(
     driver
     STATIC
     uart.c
+    memallc.c
 )
 
 registerFilesToFormat(FILES uart.c)

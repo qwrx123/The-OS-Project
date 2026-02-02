@@ -5,6 +5,7 @@
 
 set(FILE_LIST
     uart.h
+    memallc.h
 )
 
 registerFilesToFormat(FILES ${FILE_LIST})

@@ -10,22 +10,49 @@
 #include "kernel/stdint.h"
 
 /**
- * @brief Set the physical address of the end of the heap
- * @param e The physical address of the end of the heap
+ * @brief Initialize the memory allocator
+ * @param s The virtual address of the start of the heap
+ * @param e The virtual address of the end of the heap
+ * @param r The maximum range of the heap
  */
-void set_heap_e(phys_addr_t e);
+void init_memallc(uintptr_t s, uintptr_t e, uint64_t r);
+
+ /**
+ * @brief Change the bounds of the heap
+ * @param s The virtual address of the start of the heap
+ * @param e The virtual address of the end of the heap
+ */
+void set_heap_bounds(uintptr_t s, uintptr_t e);
+
+ /**
+ * @brief Set the range of the heap
+ * @param r The maximum range of the heap
+ */
+void set_range(uint64_t r);
 
 /**
- * @brief Get the physical address of the start of the heap
- * @return The physical address of the start of the heap
+ * @brief Set the virtual address of the end of the heap
+ * @param e The virtual address of the end of the heap
+ */
+void set_heap_e(uintptr_t e);
+
+/**
+ * @brief Get the virtual address of the start of the heap
+ * @return The virtual address of the start of the heap
  */
 uintptr_t get_heap_s();
 
 /**
- * @brief Get the physical address of the end of the heap
- * @return The physical address of the end of the heap
+ * @brief Get the virtual address of the end of the heap
+ * @return The virtual address of the end of the heap
  */
 uintptr_t get_heap_e();
+
+ /**
+ * @brief Get the range of the heap
+ * @return The maximum range of the heap
+ */
+uint64_t get_range();
 
 /**
  * @brief Allocate a block of memory from the heap

@@ -9,9 +9,9 @@
 uintptr_t heap_s = 0x1000;
 uintptr_t heap_e;
 uint64_t min_bytes = 0x00000000000001F0;
-uint64_t range = 0x400000;
+uint64_t range = 0x200000;
 
-void set_heap_e(phys_addr_t e)
+void set_heap_e(uintptr_t e)
 {
     if (e > (heap_s + range))
     {

@@ -9,12 +9,6 @@
 #include "kernel/types.h"
 #include "kernel/stdint.h"
 
-uintptr_t heap_s = 0x1000;
-uintptr_t heap_e;
-
-uint64_t min_bytes = 0x00000000000001F0;
-uint64_t range = 0x400000;
-
 /**
  * @brief Set the physical address of the end of the heap
  * @param e The physical address of the end of the heap

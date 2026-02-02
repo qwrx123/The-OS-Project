@@ -12,6 +12,7 @@ extern "C"
 
 TEST(memallc_test, get_heap_s)
 {
+    uintptr_t heap_s = 0x1000;
 	EXPECT_EQ(get_heap_s(), heap_s);
 }
 
@@ -24,6 +25,7 @@ TEST(memallc_test, set_and_get_heap_e)
 
 TEST(memallc_test, set_heap_e_out_of_range)
 {
+    uint64_t range = 0x400000;
 	phys_addr_t end = range + range;
 	set_heap_e(end);
 	EXPECT_EQ(get_heap_e(), get_heap_s() + range);

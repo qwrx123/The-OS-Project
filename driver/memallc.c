@@ -72,7 +72,7 @@ void memallc(uint64_t size)
     }
 }
 
-void free_memallc()
+void free_memallc(uintptr_t addr)
 {
-    heap_e = heap_s;
+    heap_e = addr;
 }

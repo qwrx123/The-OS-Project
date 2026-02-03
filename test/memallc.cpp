@@ -70,8 +70,9 @@ TEST(memallc_test, memallc_over_max)
 TEST(memallc_test, free_memallc)
 {
 	uintptr_t end = 0x4000;
+    uintptr_t addr = get_heap_s();
 	set_heap_e(end);
-	free_memallc();
+	free_memallc(addr);
 	EXPECT_EQ(get_heap_e(), get_heap_s());
 }
 

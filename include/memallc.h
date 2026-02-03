@@ -62,7 +62,13 @@ void memallc(uint64_t size);
 
 /**
  * @brief Deallocate all of the memory from the heap
+ * @param addr The address to free the memory to
  */
-void free_memallc();
+void free_memallc(uintptr_t addr);
+
+/**
+ * @brief Deallocate a block of the memory from the heap
+ */
+void free_memallc_block(uintptr_t addr, uint64_t size);
 
 #endif

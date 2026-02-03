@@ -9,20 +9,19 @@
 #include "kernel/types.h"
 #include "kernel/stdint.h"
 
+typedef struct memblk
+{
+    uintptr_t addr;
+    uint64_t size;
+    struct memblk* next;
+} memblk_t;
+
 /**
  * @brief Initialize the memory allocator
  * @param s The virtual address of the start of the heap
- * @param e The virtual address of the end of the heap
  * @param r The maximum range of the heap
  */
-void init_memallc(uintptr_t s, uintptr_t e, uint64_t r);
-
- /**
- * @brief Change the bounds of the heap
- * @param s The virtual address of the start of the heap
- * @param e The virtual address of the end of the heap
- */
-void set_heap_bounds(uintptr_t s, uintptr_t e);
+void init_memallc(uintptr_t s, uint64_t r);
 
  /**
  * @brief Set the range of the heap
@@ -31,28 +30,28 @@ void set_heap_bounds(uintptr_t s, uintptr_t e);
 void set_range(uint64_t r);
 
 /**
- * @brief Set the virtual address of the end of the heap
- * @param e The virtual address of the end of the heap
- */
-void set_heap_e(uintptr_t e);
-
-/**
  * @brief Get the virtual address of the start of the heap
  * @return The virtual address of the start of the heap
  */
 uintptr_t get_heap_s();
-
-/**
- * @brief Get the virtual address of the end of the heap
- * @return The virtual address of the end of the heap
- */
-uintptr_t get_heap_e();
 
  /**
  * @brief Get the range of the heap
  * @return The maximum range of the heap
  */
 uint64_t get_range();
+
+/**
+ * @brief Get the list of free memory blocks
+ * @return Pointer to the head of the free memory block list
+ */
+memblk_t* get_free_memblk();
+
+/**
+ * @brief Get the list of allocated memory blocks
+ * @return Pointer to the head of the allocated memory block list
+ */
+memblk_t* get_allc_memblk();
 
 /**
  * @brief Allocate a block of memory from the heap
@@ -66,9 +65,8 @@ void memallc(uint64_t size);
  */
 void free_memallc(uintptr_t addr);
 
-/**
- * @brief Deallocate a block of the memory from the heap
- */
-void free_memallc_block(uintptr_t addr, uint64_t size);
+memblk_t* allc_memblk(uint64_t size);
+
+void free_memblk(uintptr_t addr, uint64_t size);
 
 #endif

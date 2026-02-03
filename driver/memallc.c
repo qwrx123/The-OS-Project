@@ -6,7 +6,11 @@
 
  #include "memallc.h"
  #include "stddef.h"
- #include <stdlib.h>
+
+// Static pool for memory block metadata structures
+#define MAX_MEMBLK_COUNT 1024
+static memblk_t memblk_pool[MAX_MEMBLK_COUNT];
+static int memblk_pool_index = 0;
 
 uintptr_t heap_s = 0x1000;
 uint64_t min_bytes = 0x00000000000001F0;
@@ -18,6 +22,9 @@ void init_memallc(uintptr_t s, uint64_t r)
 {
     heap_s = s;
     range = r;
+    
+    // Reset pool index
+    memblk_pool_index = 0;
     
     // Reset both lists
     free_memblk_list = new_memblk(heap_s, range);
@@ -51,15 +58,12 @@ memblk_t* get_allc_memblk()
 
 void memallc(uint64_t size)
 {
-    // Always reinitialize to ensure clean state for each test/context
-    free_memblk_list = new_memblk(heap_s, range);
+    // Don't reinitialize - work with existing lists
     if (!free_memblk_list)
     {
-        // Failed to initialize
-        allc_memblk_list = NULL;
+        // Not initialized
         return;
     }
-    allc_memblk_list = NULL;
     
     if (size < min_bytes)
     {
@@ -139,13 +143,11 @@ memblk_t* allc_memblk(uint64_t size)
         if (block->size >= size)
         {
             // If block is larger than needed, split it
-            if (block->size > size + sizeof(memblk_t))
+            if (block->size > size)
             {
-                memblk_t* new_block = (memblk_t*)malloc(sizeof(memblk_t));
+                memblk_t* new_block = new_memblk(block->addr + size, block->size - size);
                 if (new_block)
                 {
-                    new_block->addr = block->addr + size;
-                    new_block->size = block->size - size;
                     new_block->next = block->next;
                     block->next = new_block;
                     block->size = size;
@@ -183,11 +185,12 @@ void free_memblk(uintptr_t addr, uint64_t size)
 
 memblk_t* new_memblk(uintptr_t addr, uint64_t size)
 {
-    // Allocate the block structure itself
-    memblk_t* block = (memblk_t*)malloc(sizeof(memblk_t));
-    if (!block)
+    // Allocate from our static pool
+    if (memblk_pool_index >= MAX_MEMBLK_COUNT)
         return NULL;
     
+    memblk_t* block = &memblk_pool[memblk_pool_index];
+    memblk_pool_index++;
     block->addr = addr;
     block->size = size;
     block->next = NULL;

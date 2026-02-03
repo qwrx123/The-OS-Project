@@ -65,8 +65,26 @@ void memallc(uint64_t size);
  */
 void free_memallc(uintptr_t addr);
 
+/**
+ * @brief Create a new memory block
+ * @param addr The starting address of the memory block
+ * @param size The size of the memory block
+ * @return Pointer to the newly created memory block
+ */
+memblk_t* new_memblk(uintptr_t addr, uint64_t size);
+
+/**
+ * @brief Allocate a memory block of given size
+ * @param size The size of the memory block to allocate
+ * @return Pointer to the allocated memory block
+ */
 memblk_t* allc_memblk(uint64_t size);
 
+/**
+ * @brief Free a memory block
+ * @param addr The starting address of the memory block to free
+ * @param size The size of the memory block to free
+ */
 void free_memblk(uintptr_t addr, uint64_t size);
 
 #endif

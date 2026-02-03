@@ -18,24 +18,28 @@ TEST(memallc_test, get_heap_s)
 
 TEST(memallc_test, memallc_under_min_bytes)
 {
+    init_memallc(0x1000, 0x200000);
     uint64_t min_bytes = 0x00000000000001F0;
     memallc(0x000000000000000A0);
 }
 
 TEST(memallc_test, memallc_min_bytes)
 {
+    init_memallc(0x1000, 0x200000);
     uint64_t min_bytes = 0x00000000000001F0;
     memallc(min_bytes);
 }
 
 TEST(memallc_test, memallc_in_range)
 {
+    init_memallc(0x1000, 0x200000);
     uint64_t bytes = 0x1000;
     memallc(bytes);
 }
 
 TEST(memallc_test, memallc_max)
 {
+    init_memallc(0x1000, 0x200000);
     uint64_t range = 0x200000;
     uint64_t max_bytes = range - get_heap_s();
     memallc(max_bytes);
@@ -43,15 +47,19 @@ TEST(memallc_test, memallc_max)
 
 TEST(memallc_test, memallc_over_max)
 {
+    init_memallc(0x1000, 0x200000);
     uint64_t range = 0x200000;
     memallc(range + range);
 }
 
 TEST(memallc_test, free_memallc_addr)
 {
-	uintptr_t end = 0x4000;
+    init_memallc(0x1000, 0x200000);
+    uint64_t bytes = 0x1000;
+    memallc(bytes);
     uintptr_t addr = get_heap_s();
 	free_memallc(addr);
+    EXPECT_EQ(get_free_memblk()->addr, addr);
 }
 
 TEST(memallc_test, get_and_set_range)

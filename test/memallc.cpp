@@ -12,8 +12,8 @@ extern "C"
 
 TEST(memallc_test, get_heap_s)
 {
-    uintptr_t heap_s = 0x1000;
-	EXPECT_EQ(get_heap_s(), heap_s);
+    uintptr_t start = 0x1000;
+	EXPECT_EQ(get_heap_s(), start);
 }
 
 TEST(memallc_test, set_and_get_heap_e)
@@ -77,15 +77,27 @@ TEST(memallc_test, free_memallc)
 
 TEST(memallc_test, get_and_set_range)
 {
-    
+    uint64_t range = 0x100000;
+    set_range(range);
+    EXPECT_EQ(get_range(), range);
 }
 
 TEST(memallc_test, init_memallc)
 {
-    
+    uintptr_t start = 0x1000;
+    uintptr_t end = 0x4000;
+    uint64_t range = 0x100000;
+    init_memallc(start, end, range);
+    EXPECT_EQ(get_heap_s(), start);
+    EXPECT_EQ(get_heap_e(), end);
+    EXPECT_EQ(get_range(), range);
 }
 
 TEST(memallc_test, change_heap_bounds)
 {
-    
+    uintptr_t start = 0x2000;
+    uintptr_t end = 0x5000;
+    set_heap_bounds(start, end);
+    EXPECT_EQ(get_heap_s(), start);
+    EXPECT_EQ(get_heap_e(), end);
 }

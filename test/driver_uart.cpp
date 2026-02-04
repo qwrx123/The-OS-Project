@@ -47,6 +47,8 @@ static int UARTFRREAD = 0;
 static std::string console;
 extern void (*uart_fr_callback)();
 extern void (*uart_dr_callback)();
+extern void (*uart_lsr_callback)();
+extern void (*uart_tbr_callback)();
 
 void uart_fr_callback_test()
 {
@@ -69,14 +71,14 @@ void uart_dr_callback_test()
 	console.push_back(UARTMOCK.DR);
 }
 
-class UART : public ::testing::Test
+class UARTPL011 : public ::testing::Test
 {
     protected:
-	UART()
+	UARTPL011()
 	{
 	}
 
-	virtual ~UART()
+	virtual ~UARTPL011()
 	{
 	}
 
@@ -84,7 +86,7 @@ class UART : public ::testing::Test
 	{
 		std::cout << "here";
 		UARTMOCK = { 0 };
-		uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
+		uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
 		UARTRESETCYCLES = UARTDEFAULTRESET;
 		UARTFRREAD = 0;
 		uart_fr_callback = &uart_fr_callback_test;
@@ -97,13 +99,13 @@ class UART : public ::testing::Test
 	}
 };
 
-TEST_F(UART, putc_clear_flag)
+TEST_F(UARTPL011, putc_clear_flag)
 {
 	uart_putc('a');
 	ASSERT_EQ('a', UARTMOCK.DR);
 }
 
-TEST_F(UART, putc_full_flag_nohang)
+TEST_F(UARTPL011, putc_full_flag_nohang)
 {
 	UARTMOCK.FR |= 0x20;
 	uart_putc('a');
@@ -111,13 +113,107 @@ TEST_F(UART, putc_full_flag_nohang)
 	ASSERT_GT(UARTFRREAD, 0);
 }
 
-TEST_F(UART, puts_writes_string)
+TEST_F(UARTPL011, puts_writes_string)
 {
 	uart_puts("Hello World");
 	ASSERT_EQ(console, "Hello World");
 }
 
-TEST_F(UART, puts_skips_null)
+TEST_F(UARTPL011, puts_skips_null)
 {
 	uart_puts(nullptr);
+}
+
+typedef struct
+{
+	volatile unsigned int RBR_TBR;
+	volatile unsigned int IER;
+	volatile unsigned int IIR_FCR;
+	volatile unsigned int LCR;
+	volatile unsigned int MCR;
+	volatile unsigned int LSR;
+	volatile unsigned int MSR;
+	volatile unsigned int SCR;
+} uart_16550_mock_regs_t;
+
+static uart_16550_mock_regs_t UART16550MOCK = { 0 };
+static int UART16550LSRREAD = 0;
+
+void uart_16550_lsr_callback_test()
+{
+	UART16550LSRREAD++;
+	if (UARTRESETCYCLES == 0)
+	{
+		UART16550MOCK.LSR |= 0x20;
+		UARTRESETCYCLES = UARTDEFAULTRESET;
+		return;
+	}
+	if (UARTRESETCYCLES > 0)
+	{
+		UARTRESETCYCLES--;
+	}
+}
+
+void uart_16550_tbr_callback_test()
+{
+	UART16550MOCK.LSR &= ~0x20;
+	console.push_back(UART16550MOCK.RBR_TBR);
+}
+
+class UART16550 : public ::testing::Test
+{
+    protected:
+	UART16550()
+	{
+	}
+
+	virtual ~UART16550()
+	{
+	}
+
+	virtual void SetUp()
+	{
+		UART16550MOCK = { 0 };
+		UART16550MOCK.LSR = 0x20;
+		uart_init(reinterpret_cast<uart_regs_t *>(&UART16550MOCK),
+			  id_16550);
+		UARTRESETCYCLES = UARTDEFAULTRESET;
+		UART16550LSRREAD = 0;
+		console.clear();
+		uart_lsr_callback = &uart_16550_lsr_callback_test;
+		uart_tbr_callback = &uart_16550_tbr_callback_test;
+	}
+
+	virtual void TearDown()
+	{
+	}
+};
+
+TEST_F(UART16550, putc_clear_flag)
+{
+	uart_putc('a');
+	ASSERT_EQ('a', UART16550MOCK.RBR_TBR);
+}
+
+TEST_F(UART16550, putc_empty_flag_nohang)
+{
+	UART16550MOCK.LSR &= ~0x20;
+	uart_putc('a');
+	ASSERT_EQ('a', UART16550MOCK.RBR_TBR);
+}
+
+TEST_F(UART16550, puts_writes_string)
+{
+	uart_puts("Hello World");
+	ASSERT_EQ(console, "Hello World");
+}
+
+TEST_F(UART16550, puts_skips_null)
+{
+	uart_puts(nullptr);
+}
+
+TEST_F(UART16550, init_sets_fifo)
+{
+	ASSERT_EQ(0x01, UART16550MOCK.IIR_FCR);
 }

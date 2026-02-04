@@ -11,6 +11,14 @@ add_library(
 
 registerFilesToFormat(FILES uart.c)
 
+target_compile_options(driver PRIVATE
+  -nostdlib 
+  -ffreestanding
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror)
+
 target_include_directories(driver
     PUBLIC
     ${PROJECT_SOURCE_DIR}/include

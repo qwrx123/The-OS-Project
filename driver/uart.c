@@ -10,6 +10,8 @@
 #ifdef TESTING
 void (*uart_fr_callback)() = NULL;
 void (*uart_dr_callback)() = NULL;
+void (*uart_lsr_callback)() = NULL;
+void (*uart_tbr_callback)() = NULL;
 #endif
 
 void (*uart_putc_impl)(char) = NULL;
@@ -104,12 +106,18 @@ void uart_putc_16550(char c)
 	while (!(UART->id_16550.LSR & (UART16550FLAGFULL)))
 	{
 #ifdef TESTING
-
+		if (uart_lsr_callback != NULL)
+		{
+			uart_lsr_callback();
+		}
 #endif
 	}
 	UART->id_16550.RBR_TBR = (unsigned int)c;
 #ifdef TESTING
-
+	if (uart_tbr_callback != NULL)
+	{
+		uart_tbr_callback();
+	}
 #endif
 }
 

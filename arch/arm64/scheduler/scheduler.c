@@ -22,27 +22,30 @@ void scheduleProcess(proc* process)
 
     if(process->state == READY)
     {
-        readyProc(newProcess);
+        procToReady(newProcess);
     }
     else if(process->state == SLEEPING)
     {
-        sleepProc(newProcess);
+        procToSleep(newProcess);
     }
 }
 
 
+//not yet implemented
 void procSwitch()
 {
 
 }
 
 
+//not yet implemented
 void procToSleep()
 {
 
 }
 
 
+//not yet implemented
 void procToReady()
 {
 

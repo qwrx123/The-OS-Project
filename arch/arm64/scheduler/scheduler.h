@@ -17,21 +17,21 @@ typedef struct
     proc* currentProc;
 } sched;
 
+//initialize the scheduler, run on creation with struct
+void schedulerInit();
+
 //add new process to queue
-void procReady(proc* process)
-{
-    node* newProcess;
-    newProcess->process = process;
-    addProc(newProcess);
-}
+void scheduleProc(proc* process);
 
 //switch process
 void procSwitch();
 
 //put sleeping processes on sleep queue
-void procSleep();
+void procToSleep();
 
 //put process back on ready queue from sleep queue
-void procWake();
+void procToReady();
+
+//dead process handling function
 
 #endif

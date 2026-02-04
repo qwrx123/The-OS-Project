@@ -10,13 +10,15 @@
 #define MAX_MEMBLK_COUNT 1024
 static memblk_t memblk_pool[MAX_MEMBLK_COUNT];
 static int memblk_pool_index = 0;
-uintptr_t heap_s = 0x1000;
+void* heap_s = NULL;
 uint64_t min_bytes = 0x00000000000001F0;
 uint64_t range = 0x200000;
 memblk_t* free_memblk_list;
 memblk_t* allc_memblk_list;
+static memblk_t* allc_memblk_impl(uint64_t size, memblk_t* prev, memblk_t* block);
+static memblk_t* allc_memblk_impl_split(uint64_t size, memblk_t* prev, memblk_t* block);
 
-void init_memallc(uintptr_t s, uint64_t r)
+void init_memallc(void* s, uint64_t r)
 {
     heap_s = s;
     range = r;
@@ -35,7 +37,7 @@ uint64_t get_range()
     return range;
 }
 
-uintptr_t get_heap_s()
+void* get_heap_s()
 {
     return heap_s;
 }
@@ -50,11 +52,11 @@ memblk_t* get_allc_memblk()
     return allc_memblk_list;
 }
 
-void memallc(uint64_t size)
+void* memallc(uint64_t size)
 {
     if (!free_memblk_list)
     {
-        return;
+        return NULL;
     }
     if (size < min_bytes)
     {
@@ -70,7 +72,7 @@ void memallc(uint64_t size)
     }
 }
 
-void free_memallc(uintptr_t addr)
+void free_memallc(void* addr)
 {
     if (!addr || !allc_memblk_list)
     {
@@ -116,33 +118,13 @@ memblk_t* allc_memblk(uint64_t size)
     return allc_memblk_impl(size, prev, block);
 }
 
-memblk_t* allc_memblk_impl(uint64_t size, memblk_t* prev, memblk_t* block)
+static memblk_t* allc_memblk_impl(uint64_t size, memblk_t* prev, memblk_t* block)
 {
     while (block)
     {
         if (block->size >= size)
         {
-            if (block->size > size)
-            {
-                memblk_t* new_block = new_memblk(block->addr + size, block->size - size);
-                if (new_block)
-                {
-                    new_block->next = block->next;
-                    block->next = new_block;
-                    block->size = size;
-                }
-            }
-            if (prev)
-            {
-                prev->next = block->next;
-            }
-            else
-            {
-                free_memblk_list = block->next;
-            }
-            block->next = allc_memblk_list;
-            allc_memblk_list = block;
-            return block;
+            return allc_memblk_impl_split(size, prev, block);
         }
         prev = block;
         block = block->next;
@@ -150,7 +132,32 @@ memblk_t* allc_memblk_impl(uint64_t size, memblk_t* prev, memblk_t* block)
     return NULL;  
 }
 
-memblk_t* new_memblk(uintptr_t addr, uint64_t size)
+static memblk_t* allc_memblk_impl_split(uint64_t size, memblk_t* prev, memblk_t* block)
+{
+    if (block->size > size)
+    {
+        memblk_t* new_block = new_memblk(block->addr + size, block->size - size);
+        if (new_block)
+        {
+            new_block->next = block->next;
+            block->next = new_block;
+            block->size = size;
+        }
+    }
+    if (prev)
+    {
+        prev->next = block->next;
+    }
+    else
+    {
+        free_memblk_list = block->next;
+    }
+    block->next = allc_memblk_list;
+    allc_memblk_list = block;
+    return block;
+}
+
+memblk_t* new_memblk(void* addr, uint64_t size)
 {
     if (memblk_pool_index >= MAX_MEMBLK_COUNT)
     {
@@ -164,7 +171,7 @@ memblk_t* new_memblk(uintptr_t addr, uint64_t size)
     return block;
 }
 
-memblk_t* get_allc_memblk_by_addr(uintptr_t addr)
+memblk_t* get_allc_memblk_by_addr(void* addr)
 {
     memblk_t* current = get_allc_memblk();
     while (current)

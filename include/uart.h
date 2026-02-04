@@ -8,9 +8,13 @@
 #define UART_H
 
 //UART hardcoded addresses
-#define UARTADDRESS \
-	0x2860000 //Address for the ns16550 uart chip of pocketbeagle
-//#define UARTADDRESS 0x09000000 //Address for the PL011 chip of qemu
+#ifdef QEMU
+//Address for the PL011 chip of qemu
+#define UARTADDRESS 0x09000000
+#else
+//Address for the ns16550 uart chip of pocketbeagle
+#define UARTADDRESS 0x2860000
+#endif
 
 /**
  * @brief This struct is to define the registers inside of the

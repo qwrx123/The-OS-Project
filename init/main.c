@@ -8,7 +8,11 @@
 
 int kernel_init(void *)
 {
+#ifdef QEMU
+	uart_init(0, id_pl011);
+#else
 	uart_init(0, id_16550);
+#endif
 	uart_puts("Hello world");
 	return 0;
 }

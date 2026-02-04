@@ -8,3 +8,11 @@ add_library(
     STATIC
     head.S
 )
+
+target_compile_options(arch_kernel PRIVATE
+  -nostdlib 
+  -ffreestanding
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror)

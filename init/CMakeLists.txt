@@ -11,6 +11,14 @@ add_library(
 
 registerFilesToFormat(FILES main.c)
 
+target_compile_options(init PRIVATE
+  -nostdlib 
+  -ffreestanding
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror)
+
 target_include_directories(init
     PUBLIC
     ${PROJECT_SOURCE_DIR}/include

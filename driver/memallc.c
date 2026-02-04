@@ -52,23 +52,23 @@ memblk_t* get_allc_memblk()
     return allc_memblk_list;
 }
 
-void memallc(uint64_t size)
+void* memallc(uint64_t size)
 {
     if (!free_memblk_list)
     {
-        return;
+        return NULL;
     }
     if (size < min_bytes)
     {
-        allc_memblk(min_bytes);
+        return allc_memblk(min_bytes)->addr;
     }
     else if (((char*)heap_s + size) > ((char*)heap_s + range))
     {   
-        allc_memblk(range);
+        return allc_memblk(range)->addr;
     }
     else
     {
-        allc_memblk(size);
+        return allc_memblk(size)->addr;
     }
 }
 

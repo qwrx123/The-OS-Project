@@ -6,8 +6,11 @@
 
 #include "uart.h"
 
-int kernel_init(void *)
+int kernel_init(void *name)
 {
+	if (name)
+	{
+	}
 	uart_puts("Hello world");
 	return 0;
 }

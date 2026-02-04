@@ -18,19 +18,19 @@ typedef struct
 } sched;
 
 //initialize the scheduler, run on creation with struct
-void schedulerInit();
+void schedulerInit(sched* scheduler);
 
 //add new process to queue
-void scheduleProc(proc* process);
+void scheduleProcess(proc* process);
 
 //switch process
 void procSwitch();
 
 //put sleeping processes on sleep queue
-void procToSleep();
+void procToSleep(node* processNode);
 
 //put process back on ready queue from sleep queue
-void procToReady();
+void procToReady(node* processNode);
 
 //dead process handling function
 

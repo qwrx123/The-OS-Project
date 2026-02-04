@@ -8,10 +8,10 @@
 
 void schedulerInit(sched* scheduler)
 {
-    scheduler->readyQueue->next = readyQueue;
-    scheduler->readyQueue->prev = readyQueue;
-    scheduler->sleepQueue->next = sleepQueue;
-    scheduler->sleepQueue->prev = sleepQueue;
+    scheduler->readyQueue->next = scheduler->readyQueue;
+    scheduler->readyQueue->prev = scheduler->readyQueue;
+    scheduler->sleepQueue->next = scheduler->sleepQueue;
+    scheduler->sleepQueue->prev = scheduler->sleepQueue;
 }
 
 
@@ -39,14 +39,14 @@ void procSwitch()
 
 
 //not yet implemented
-void procToSleep()
+void procToSleep(node* processNode)
 {
-
+    addProc(sleepQueue, processNode);
 }
 
 
 //not yet implemented
-void procToReady()
+void procToReady(node* processNode)
 {
-
+    addProc(readyQueue, processNode);
 }

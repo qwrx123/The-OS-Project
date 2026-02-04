@@ -11,14 +11,14 @@
 
 //process list nodes were made to be a circular double-link list, for ease of
 //access to both the next process and inserting a new process at the end.
-struct node
+typedef struct
 {
     proc* process = NULL;
     node* next = NULL;
     node* prev = NULL;
-};
+} scheduleNode;
 
-void addProc(node* head, node* newNode)
+void addProc(scheduleNode* head, scheduleNode* newNode)
 {
     if(isEmpty(head))
     {
@@ -36,7 +36,7 @@ void addProc(node* head, node* newNode)
 }
 
 
-void removeProc(node* targetProc)
+void removeProc(scheduleNode* targetProc)
 {
     targetProc->next->prev = targetProc->prev;
     targetProc->prev->next = targetProc->next;
@@ -47,7 +47,7 @@ void removeProc(node* targetProc)
 }
 
 
-bool isEmpty(node* head)
+int isEmpty(scheduleNode* head)
 {
     return head->next == head;
 }

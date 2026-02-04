@@ -9,34 +9,29 @@
 
 #include "proc.h"
 
+//process list nodes were made to be a circular double-link list, for ease of
+//access to both the next process and inserting a new process at the end.
 struct node
 {
-    proc* process;
+    proc* process = NULL;
     node* next = NULL;
     node* prev = NULL;
 };
 
-node* head = NULL;
-
-void addProc(proc* newProcess)
+void addProc(node* head, node* newNode)
 {
-    node* newNode;
-    newNode->process = newProcess;
-
-    if(isEmpty())
+    if(isEmpty(head))
     {
-        head = newNode;
+        head->next = newNode;
+        head->prev = newNode;
+        newNode->next = head;
+        newNode->prev = head;
     }
     else
     {
         newNode->next = head;
         newNode->prev = head->prev;
         head->prev = newNode;
-        
-        if(head->next == NULL)
-        {
-            head->next = newNode;
-        }
     }
 }
 
@@ -45,12 +40,16 @@ void removeProc(node* targetProc)
 {
     targetProc->next->prev = targetProc->prev;
     targetProc->prev->next = targetProc->next;
+
+    //if process state READY: addProc ReadyQueue
+    //if process state SLEEPING: addProc SleepQueue
+    //if process state ZOMBIE: targetProc->process.kill
 }
 
 
-bool isEmpty()
+bool isEmpty(node* head)
 {
-    return head == NULL;
+    return head->next == head;
 }
 
 #endif

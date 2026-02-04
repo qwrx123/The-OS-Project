@@ -10,14 +10,28 @@
 #include "proc.h"
 #include "proc_list.h"
 
-//ready queue
-//sleep queue
+typedef struct
+{
+    node* readyQueue;
+    node* sleepQueue;
+    proc* currentProc;
+} sched;
 
 //add new process to queue
-void procReady();
+void procReady(proc* process)
+{
+    node* newProcess;
+    newProcess->process = process;
+    addProc(newProcess);
+}
+
 //switch process
 void procSwitch();
+
 //put sleeping processes on sleep queue
 void procSleep();
+
+//put process back on ready queue from sleep queue
+void procWake();
 
 #endif

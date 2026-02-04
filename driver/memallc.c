@@ -52,17 +52,17 @@ memblk_t* get_allc_memblk()
     return allc_memblk_list;
 }
 
-void* memallc(uint64_t size)
+void memallc(uint64_t size)
 {
     if (!free_memblk_list)
     {
-        return NULL;
+        return;
     }
     if (size < min_bytes)
     {
         allc_memblk(min_bytes);
     }
-    else if ((heap_s + size) > (heap_s + range))
+    else if (((char*)heap_s + size) > ((char*)heap_s + range))
     {   
         allc_memblk(range);
     }
@@ -136,7 +136,7 @@ static memblk_t* allc_memblk_impl_split(uint64_t size, memblk_t* prev, memblk_t*
 {
     if (block->size > size)
     {
-        memblk_t* new_block = new_memblk(block->addr + size, block->size - size);
+        memblk_t* new_block = new_memblk((char*)block->addr + size, block->size - size);
         if (new_block)
         {
             new_block->next = block->next;

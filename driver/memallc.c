@@ -7,11 +7,9 @@
  #include "memallc.h"
  #include "stddef.h"
 
-// Static pool for memory block metadata structures
 #define MAX_MEMBLK_COUNT 1024
 static memblk_t memblk_pool[MAX_MEMBLK_COUNT];
 static int memblk_pool_index = 0;
-
 uintptr_t heap_s = 0x1000;
 uint64_t min_bytes = 0x00000000000001F0;
 uint64_t range = 0x200000;
@@ -22,11 +20,7 @@ void init_memallc(uintptr_t s, uint64_t r)
 {
     heap_s = s;
     range = r;
-    
-    // Reset pool index
     memblk_pool_index = 0;
-    
-    // Reset both lists
     free_memblk_list = new_memblk(heap_s, range);
     allc_memblk_list = NULL;
 }
@@ -58,19 +52,16 @@ memblk_t* get_allc_memblk()
 
 void memallc(uint64_t size)
 {
-    // Don't reinitialize - work with existing lists
     if (!free_memblk_list)
     {
-        // Not initialized
         return;
     }
-    
     if (size < min_bytes)
     {
         allc_memblk(min_bytes);
     }
     else if ((heap_s + size) > (heap_s + range))
-    {
+    {   
         allc_memblk(range);
     }
     else
@@ -81,22 +72,13 @@ void memallc(uint64_t size)
 
 void free_memallc(uintptr_t addr)
 {
-    if (!addr)
+    if (!addr || !allc_memblk_list)
     {
         return;
-    }
-    
-    // Debug: if allc_memblk_list is NULL, initialization failed
-    if (!allc_memblk_list)
-    {
-        return;
-    }
-    
-    // Find the block in the allocated list by searching for matching addr
+    } 
     memblk_t* block = NULL;
     memblk_t* prev = NULL;
     memblk_t* current = allc_memblk_list;
-    
     while (current)
     {
         if (current->addr == addr)
@@ -107,11 +89,10 @@ void free_memallc(uintptr_t addr)
         prev = current;
         current = current->next;
     }
-    
     if (!block)
-        return;  // Block not found in allocated list
-    
-    // Remove from allocated list
+    {
+        return;
+    }
     if (prev)
     {
         prev->next = block->next;
@@ -120,29 +101,27 @@ void free_memallc(uintptr_t addr)
     {
         allc_memblk_list = block->next;
     }
-    
-    // Add to front of free list
     block->next = free_memblk_list;
     free_memblk_list = block;
 }
 
 memblk_t* allc_memblk(uint64_t size)
 {
-	 if (!size)
+    if (!size || !free_memblk_list)
+    {
         return NULL;
-    
-    if (!free_memblk_list)
-        return NULL;
-    
-    // Find first free block that fits (first-fit)
+    }
     memblk_t* prev = NULL;
     memblk_t* block = free_memblk_list;
-    
+    return allc_memblk_impl(size, prev, block);
+}
+
+memblk_t* allc_memblk_impl(uint64_t size, memblk_t* prev, memblk_t* block)
+{
     while (block)
     {
         if (block->size >= size)
         {
-            // If block is larger than needed, split it
             if (block->size > size)
             {
                 memblk_t* new_block = new_memblk(block->addr + size, block->size - size);
@@ -153,8 +132,6 @@ memblk_t* allc_memblk(uint64_t size)
                     block->size = size;
                 }
             }
-            
-            // Remove from free list
             if (prev)
             {
                 prev->next = block->next;
@@ -163,32 +140,22 @@ memblk_t* allc_memblk(uint64_t size)
             {
                 free_memblk_list = block->next;
             }
-            
-            // Add to allocated list (at head)
             block->next = allc_memblk_list;
             allc_memblk_list = block;
-            
             return block;
         }
-        
         prev = block;
         block = block->next;
     }
-    
-    return NULL;  // No suitable block found
-}
-
-void free_memblk(uintptr_t addr, uint64_t size)
-{
-
+    return NULL;  
 }
 
 memblk_t* new_memblk(uintptr_t addr, uint64_t size)
 {
-    // Allocate from our static pool
     if (memblk_pool_index >= MAX_MEMBLK_COUNT)
+    {
         return NULL;
-    
+    }
     memblk_t* block = &memblk_pool[memblk_pool_index];
     memblk_pool_index++;
     block->addr = addr;

@@ -81,10 +81,12 @@ memblk_t* new_memblk(uintptr_t addr, uint64_t size);
 memblk_t* allc_memblk(uint64_t size);
 
 /**
- * @brief Free a memory block
- * @param addr The starting address of the memory block to free
- * @param size The size of the memory block to free
+ * @brief Implementation of memory block allocation
+ * @param size The size of the memory block to allocate
+ * @param prev Pointer to the previous memory block in the free list
+ * @param block Pointer to the current memory block in the free list
+ * @return Pointer to the allocated memory block
  */
-void free_memblk(uintptr_t addr, uint64_t size);
+memblk_t* allc_memblk_impl(uint64_t size, memblk_t* prev, memblk_t* block);
 
 #endif

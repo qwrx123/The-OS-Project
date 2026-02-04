@@ -16,7 +16,8 @@
  * @param UART0_BASE_PHYS Physcial address for UART
  * @param UART0_SIZE Number of bytes for UART
  */
-#define UART0_BASE_PHYS 0x09000000ULL
+//#define UART0_BASE_PHYS 0x09000000ULL
+#define UART0_BASE_PHYS 0x2860000ULL
 #define UART0_SIZE 0x1000ULL
 
 /**

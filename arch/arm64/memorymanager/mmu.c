@@ -374,8 +374,14 @@ static uint64_t *map_kernel(uint64_t *page_table_start,
 		kernel_block_va += L2_BLOCK_SIZE;
 		kernel_block_pa += L2_BLOCK_SIZE;
 	}
-
-	return l2_table + PT_ENTRIES;
+	if (l2_table + PT_ENTRIES < page_table_end)
+	{
+		return l2_table + PT_ENTRIES;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 static uint64_t *map_devices(uint64_t *page_table_start,
@@ -383,7 +389,7 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 {
 	uint64_t *l1_table = (uint64_t *)__page_tables_start;
 
-	for (int i = 0; i < early_device_map_count; i++)
+	for (unsigned long long i = 0; i < early_device_map_count; i++)
 	{
 		uint64_t *l2_table;
 		const device_config_t *current_device = &early_device_map[i];
@@ -398,6 +404,10 @@ static uint64_t *map_devices(uint64_t *page_table_start,
 			l2_table = page_table_start;
 			page_table_start += PT_ENTRIES;
 			init_l2_table(l1_table, l1_index, l2_table);
+			if (page_table_start > page_table_end)
+			{
+				page_table_start = NULL;
+			}
 		}
 		else
 		{

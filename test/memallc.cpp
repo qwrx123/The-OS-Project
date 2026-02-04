@@ -67,6 +67,21 @@ TEST(memallc_test, free_memallc_addr)
     EXPECT_EQ(get_free_memblk()->addr, addr);
 }
 
+TEST(memallc_test, free_memallc_mid)
+{
+    init_memallc(0x1000, 0x200000);
+    uint64_t bytes = 0x1000;
+    memallc(bytes);
+    memallc(bytes);
+    memallc(bytes);
+    uintptr_t addr = get_heap_s() + bytes;
+	free_memallc(addr);
+    EXPECT_EQ(get_free_memblk()->addr, addr);
+    EXPECT_EQ(get_free_memblk()->size, bytes);
+    EXPECT_EQ(get_allc_memblk_by_addr(get_heap_s())->addr, get_heap_s());
+    EXPECT_EQ(get_allc_memblk_by_addr(get_heap_s() + bytes * 2)->addr, get_heap_s() + bytes * 2);
+}
+
 TEST(memallc_test, get_and_set_range)
 {
     uint64_t range = 0x100000;

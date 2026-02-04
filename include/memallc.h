@@ -89,4 +89,11 @@ memblk_t* allc_memblk(uint64_t size);
  */
 memblk_t* allc_memblk_impl(uint64_t size, memblk_t* prev, memblk_t* block);
 
+/**
+ * @brief Get the allocated memory block by its address
+ * @param addr The address of the memory block
+ * @return Pointer to the allocated memory block
+ */
+memblk_t* get_allc_memblk_by_addr(uintptr_t addr);
+
 #endif

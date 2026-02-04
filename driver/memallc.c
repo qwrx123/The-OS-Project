@@ -163,3 +163,15 @@ memblk_t* new_memblk(uintptr_t addr, uint64_t size)
     block->next = NULL;
     return block;
 }
+
+memblk_t* get_allc_memblk_by_addr(uintptr_t addr)
+{
+    memblk_t* current = get_allc_memblk();
+    while (current)
+    {
+        if (current->addr == addr)
+            return current;
+        current = current->next;
+    }
+    return NULL;
+}

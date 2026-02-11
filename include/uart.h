@@ -8,9 +8,18 @@
 #define UART_H
 
 //UART hardcoded addresses
-//#define UARTADDRESS 0x2860000 //Address for the ns16550 uart chip of pocketbeagle
-#define UARTADDRESS 0x09000000 //Address for the PL011 chip of qemu
+#ifdef QEMU
+//Address for the PL011 chip of qemu
+#define UARTADDRESS 0x09000000
+#else
+//Address for the ns16550 uart chip of pocketbeagle
+#define UARTADDRESS 0x2860000
+#endif
 
+/**
+ * @brief This struct is to define the registers inside of the
+ * PL011 UART device
+ */
 typedef struct
 {
 	volatile unsigned int DR;
@@ -38,17 +47,54 @@ typedef struct
 	volatile const unsigned int PCellID1;
 	volatile const unsigned int PCellID2;
 	volatile const unsigned int PCellID3;
+} uart_regs_pl011_t;
+
+/**
+ * @brief This struct is to define the registers inside of the
+ * 16550 UART device
+ */
+typedef struct
+{
+	volatile unsigned int RBR_TBR;
+	volatile unsigned int IER;
+	volatile unsigned int IIR_FCR;
+	volatile unsigned int LCR;
+	volatile unsigned int MCR;
+	volatile unsigned int LSR;
+	volatile unsigned int MSR;
+	volatile unsigned int SCR;
+} uart_regs_16550_t;
+
+/**
+ * @brief This enum is to differentiate between the types of UART used
+ */
+typedef enum
+{
+	id_default,
+	id_pl011,
+	id_16550
+} uart_type;
+
+/**
+ * @brief This union is used to store the register pattern of the uart
+ * being used at any one time.
+ */
+typedef union
+{
+	uart_regs_pl011_t id_pl011;
+	uart_regs_16550_t id_16550;
 } uart_regs_t;
 
 //Whenever UART is full and you cannot write to it this is the flag
-#define UARTFLAGFULL (1u << 5)
+#define UARTPL011FLAGFULL (1u << 5)
+#define UART16550FLAGFULL (1u << 5)
 
 /**
  * @brief Initialize UART with specific hardware address (or NULL for default).
  * 
  * @param uart_device The UART hardware address to be initalized (or NULL for default).
  */
-void uart_init(uart_regs_t *uart_device);
+void uart_init(uart_regs_t *uart_device, uart_type init_type);
 
 /**
  * @brief This function writes a single character to the UART address once the UART Full flag is Unset

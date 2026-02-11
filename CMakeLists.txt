@@ -6,6 +6,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 option(BUILD_TESTING "Build testing" OFF)
+option(BUILD_QEMU "Build target for qemu" ON)
 
 if (NOT BUILD_TESTING)
   set(CROSS "aarch64-none-elf-" CACHE STRING "Cross-compile prefix (e.g., aarch64-none-elf)")
@@ -21,6 +22,10 @@ if (NOT BUILD_TESTING)
   endif()
 else()
   add_compile_definitions(TESTING)
+endif()
+
+if(BUILD_QEMU)
+  add_compile_definitions(QEMU)
 endif()
 
 project(TheOSProject LANGUAGES C ASM)
@@ -89,6 +94,6 @@ add_custom_target(kernel_bin ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/kernel.bin)
 add_custom_target(run
   DEPENDS kernel_bin
   COMMAND qemu-system-aarch64 -M virt -cpu cortex-a57 -m 2G -nographic
-          -device loader,file=${CMAKE_CURRENT_BINARY_DIR}/kernel.bin,addr=0x80000000,cpu-num=0
+          -device loader,file=${CMAKE_CURRENT_BINARY_DIR}/kernel.bin,addr=0x82000000,cpu-num=0
   USES_TERMINAL
 )

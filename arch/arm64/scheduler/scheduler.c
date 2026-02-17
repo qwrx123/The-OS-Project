@@ -34,7 +34,12 @@ void scheduleProcess(proc* process)
 //not yet implemented
 void procSwitch()
 {
-
+    //call on timer interrupt
+    //if readyQueue->next != readyQueue
+    //save context of current proc
+    //load context of readyQueue->next
+    //put current proc on ready (or sleep) queue
+    //remove readyQueue->next and hold it in currentProc
 }
 
 

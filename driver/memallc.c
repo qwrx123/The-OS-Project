@@ -103,6 +103,7 @@ void free_memallc(void* addr)
     }
     block->next = free_memblk_list;
     free_memblk_list = block;
+    defragment_memblk(block);
 }
 
 memblk_t* allc_memblk(uint64_t size)
@@ -152,7 +153,6 @@ static memblk_t* allc_memblk_impl_split(uint64_t size, memblk_t* prev, memblk_t*
     }
     block->next = allc_memblk_list;
     allc_memblk_list = block;
-    defragment_memblk(block);
     return block;
 }
 

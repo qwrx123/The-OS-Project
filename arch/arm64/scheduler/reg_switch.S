@@ -1,6 +1,10 @@
-.text
+@Copyright (c) 2026 Jess Knue
+
+@SPDX-License-Identifier:BSD-2-Clause
+
 .global reg_switch
 
+@Store the outgoing process context
 str sp, [x0]
 str x19, [x0 + #0x8]
 str x20, [x0 + #0x10]
@@ -15,6 +19,7 @@ str x28, [x0 + #0x50]
 str x29, [x0 + #0x58]
 str x30, [x0 + #0x60]
 
+@Load the incoming process context
 ldr sp, [x1]
 ldr x19, [x1 + #0x8]
 ldr x20, [x1 + #0x10]

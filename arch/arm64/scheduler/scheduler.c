@@ -6,6 +6,8 @@
  
  #include "scheduler.h"
 
+ extern void reg_switch();
+
 void schedulerInit(sched* scheduler)
 {
     scheduler->readyQueue->next = scheduler->readyQueue;
@@ -34,11 +36,21 @@ void scheduleProcess(proc* process)
 //not yet implemented
 void procSwitch()
 {
-    //call on timer interrupt
-    //if readyQueue->next != readyQueue
-    //save context of current proc
-    //load context of readyQueue->next
-    //put current proc on ready (or sleep) queue
+    //is called on through timer interrupt or 
+    if (readyQueue->next != readyQueue)
+    {
+        reg_switch(currentProc->context, readyQueue->next->proc->context);
+        if (currentProc->state == READY)
+        {
+            procToReady(currentProc);
+        }
+        else
+        {
+            procToSleep(currentProc);
+        }
+
+        currentProc = readyQueue->next;
+    }
     //remove readyQueue->next and hold it in currentProc
 }
 

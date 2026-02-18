@@ -57,7 +57,7 @@ memblk_t* get_allc_memblk();
  * @brief Allocate a block of memory from the heap
  * @param size The size of the memory block to allocate
  */
-void memallc(uint64_t size);
+void* memallc(uint64_t size);
 
 /**
  * @brief Deallocate all of the memory from the heap

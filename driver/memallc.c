@@ -11,12 +11,12 @@
 static memblk_t memblk_pool[MAX_MEMBLK_COUNT];
 static int memblk_pool_index = 0;
 void* heap_s = NULL;
-uint64_t min_bytes = 0x00000000000001F0;
 uint64_t range = 0x200000;
 memblk_t* free_memblk_list;
 memblk_t* allc_memblk_list;
 static memblk_t* allc_memblk_impl(uint64_t size, memblk_t* prev, memblk_t* block);
 static memblk_t* allc_memblk_impl_split(uint64_t size, memblk_t* prev, memblk_t* block);
+static void defragment_memblk(memblk_t* block);
 
 void init_memallc(void* s, uint64_t r)
 {
@@ -58,18 +58,16 @@ void* memallc(uint64_t size)
     {
         return NULL;
     }
-    if (size < min_bytes)
-    {
-        return allc_memblk(min_bytes)->addr;
-    }
-    else if (((char*)heap_s + size) > ((char*)heap_s + range))
+    memblk_t* block = NULL;
+    if (size > range)
     {   
-        return allc_memblk(range)->addr;
+        block = allc_memblk(range);
     }
     else
     {
-        return allc_memblk(size)->addr;
+        block = allc_memblk(size);
     }
+    return block ? block->addr : NULL;
 }
 
 void free_memallc(void* addr)
@@ -154,7 +152,41 @@ static memblk_t* allc_memblk_impl_split(uint64_t size, memblk_t* prev, memblk_t*
     }
     block->next = allc_memblk_list;
     allc_memblk_list = block;
+    defragment_memblk(block);
     return block;
+}
+
+static void defragment_memblk(memblk_t* block)
+{
+    memblk_t* current = free_memblk_list;
+    memblk_t* prev_current = NULL;
+    while (current)
+    {
+        if ((char*)current->addr + current->size == block->addr)
+        {
+            current->size += block->size;
+            current->next = block->next;
+            return;
+        }
+        else if ((char*)block->addr + block->size == current->addr)
+        {
+            block->size += current->size;
+            block->next = current->next;
+            if (current == free_memblk_list)
+            {
+                free_memblk_list = block;
+            }
+            else if (prev_current)
+            {
+                prev_current->next = block;
+            }
+            return;
+        }
+        prev_current = current;
+        current = current->next;
+    }
+    block->next = free_memblk_list;
+    free_memblk_list = block;
 }
 
 memblk_t* new_memblk(void* addr, uint64_t size)

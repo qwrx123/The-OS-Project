@@ -17,22 +17,6 @@ TEST(memallc_test, get_heap_s)
 	EXPECT_EQ(get_heap_s(), start);
 }
 
-TEST(memallc_test, memallc_under_min_bytes)
-{
-    init_memallc((void*)0x1000, 0x200000);
-    uint64_t min_bytes = 0x00000000000001F0;
-    memallc(0x000000000000000A0);
-    EXPECT_EQ(get_allc_memblk()->size, min_bytes);
-}
-
-TEST(memallc_test, memallc_min_bytes)
-{
-    init_memallc((void*)0x1000, 0x200000);
-    uint64_t min_bytes = 0x00000000000001F0;
-    memallc(min_bytes);
-    EXPECT_EQ(get_allc_memblk()->size, min_bytes);
-}
-
 TEST(memallc_test, memallc_in_range)
 {
     init_memallc((void*)0x1000, 0x200000);
@@ -98,4 +82,21 @@ TEST(memallc_test, init_memallc)
     EXPECT_EQ(get_heap_s(), start);
     EXPECT_EQ(get_range(), range);
     EXPECT_EQ(get_free_memblk()->addr, start);
+}
+
+TEST(memallc_test, defragment_free_memblk)
+{
+    init_memallc((void*)0x1000, 0x200000);
+    uint64_t bytes = 0x1000;
+    memallc(bytes);
+    memallc(bytes);
+    memallc(bytes);
+    void* addr1 = get_heap_s();
+    void* addr2 = (void*)((uintptr_t)get_heap_s() + bytes);
+    void* addr3 = (void*)((uintptr_t)get_heap_s() + bytes * 2);
+    free_memallc(addr2);
+    free_memallc(addr1);
+    EXPECT_EQ(get_free_memblk()->addr, addr1);
+    EXPECT_EQ(get_free_memblk()->size, bytes * 2);
+    EXPECT_EQ(get_allc_memblk_by_addr(addr3)->addr, addr3);
 }

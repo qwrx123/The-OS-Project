@@ -14,8 +14,8 @@
 typedef struct
 {
     proc* process = NULL;
-    node* next = NULL;
-    node* prev = NULL;
+    scheduleNode* next = NULL;
+    scheduleNode* prev = NULL;
 } scheduleNode;
 
 void addProc(scheduleNode* head, scheduleNode* newNode)

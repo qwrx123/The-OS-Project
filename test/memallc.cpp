@@ -8,10 +8,49 @@
 extern "C"
 {
 #include "memallc.h"
+#include <uart.h>
 }
+
+typedef struct
+{
+	volatile unsigned int DR;
+	volatile unsigned int RSR_ECR;
+	volatile unsigned int reserved1[4];
+	volatile unsigned int FR;
+	volatile unsigned int reserved2;
+	volatile unsigned int ILPR;
+	volatile unsigned int IBRD;
+	volatile unsigned int FBRD;
+	volatile unsigned int LCR_H;
+	volatile unsigned int CR;
+	volatile unsigned int IFLS;
+	volatile unsigned int IMSC;
+	volatile unsigned int RIS;
+	volatile unsigned int MIS;
+	volatile unsigned int ICR;
+	volatile unsigned int DMACR;
+	volatile unsigned int reserved3[997];
+	volatile unsigned int PeriphID0;
+	volatile unsigned int PeriphID1;
+	volatile unsigned int PeriphID2;
+	volatile unsigned int PeriphID3;
+	volatile unsigned int PCellID0;
+	volatile unsigned int PCellID1;
+	volatile unsigned int PCellID2;
+	volatile unsigned int PCellID3;
+} uart_mock_regs_t;
+
+static uart_mock_regs_t UARTMOCK = { 0 };
+#define UARTDEFAULTRESET 100;
+static int UARTRESETCYCLES = 0;
+static int UARTFRREAD = 0;
+static std::string console;
+extern void (*uart_fr_callback)();
+extern void (*uart_dr_callback)();
 
 TEST(memallc_test, get_heap_s)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     void* start = (void*)0x1000;
     init_memallc(start, 0x200000);
 	EXPECT_EQ(get_heap_s(), start);
@@ -19,6 +58,7 @@ TEST(memallc_test, get_heap_s)
 
 TEST(memallc_test, memallc_in_range)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     init_memallc((void*)0x1000, 0x200000);
     uint64_t bytes = 0x1000;
     memallc(bytes);
@@ -27,6 +67,7 @@ TEST(memallc_test, memallc_in_range)
 
 TEST(memallc_test, memallc_max)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     init_memallc((void*)0x1000, 0x200000);
     uint64_t range = 0x200000;
     uint64_t max_bytes = range - (uintptr_t)get_heap_s();
@@ -36,6 +77,7 @@ TEST(memallc_test, memallc_max)
 
 TEST(memallc_test, memallc_over_max)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     init_memallc((void*)0x1000, 0x200000);
     uint64_t range = 0x200000;
     memallc(range + range);
@@ -44,6 +86,7 @@ TEST(memallc_test, memallc_over_max)
 
 TEST(memallc_test, free_memallc_addr)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     init_memallc((void*)0x1000, 0x200000);
     uint64_t bytes = 0x1000;
     memallc(bytes);
@@ -54,6 +97,7 @@ TEST(memallc_test, free_memallc_addr)
 
 TEST(memallc_test, free_memallc_mid)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     init_memallc((void*)0x1000, 0x200000);
     uint64_t bytes = 0x1000;
     memallc(bytes);
@@ -69,6 +113,7 @@ TEST(memallc_test, free_memallc_mid)
 
 TEST(memallc_test, get_and_set_range)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     uint64_t range = 0x100000;
     set_range(range);
     EXPECT_EQ(get_range(), range);
@@ -76,6 +121,7 @@ TEST(memallc_test, get_and_set_range)
 
 TEST(memallc_test, init_memallc)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     void* start = (void*)0x1000;
     uint64_t range = 0x100000;
     init_memallc(start, range);
@@ -86,6 +132,7 @@ TEST(memallc_test, init_memallc)
 
 TEST(memallc_test, defragment_free_memblk)
 {
+    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK));
     init_memallc((void*)0x1000, 0x200000);
     uint64_t bytes = 0x1000;
     memallc(bytes);

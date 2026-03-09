@@ -5,6 +5,8 @@
 
 set(FILE_LIST
     uart.h
+    scheduler.h
+    proc.h
 )
 
 registerFilesToFormat(FILES ${FILE_LIST})

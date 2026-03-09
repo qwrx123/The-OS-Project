@@ -7,11 +7,7 @@
 #ifndef PROC_H
 #define PROC_H
 
-struct proc
-{
-    state proc_state;
-    context proc_context;
-};
+#include "kernel/types.h"
 
 
 typedef enum
@@ -23,7 +19,8 @@ typedef enum
 } state;
 
 
-struct context{
+typedef struct
+{
     uint64_t SP; //Stack pointer
 
     uint64_t x19;
@@ -39,6 +36,13 @@ struct context{
     
     uint64_t x29; //Frame pointer
     uint64_t x30; //Link register
-};
+} context;
+
+
+typedef struct
+{
+    state proc_state;
+    context proc_context;
+} proc;
 
 #endif

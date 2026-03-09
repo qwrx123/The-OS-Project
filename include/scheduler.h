@@ -8,17 +8,25 @@
 #define SCHEDULER_H
 
 #include "proc.h"
-#include "proc_list.h"
+
+//process list nodes were made to be a circular double-link list, for ease of
+//access to both the next process and inserting a new process at the end.
+typedef struct
+{
+    proc* process;
+    struct scheduleNode* next;
+    struct scheduleNode* prev;
+} scheduleNode;
 
 typedef struct
 {
-    node* readyQueue;
-    node* sleepQueue;
+    struct scheduleNode* readyQueue;
+    struct scheduleNode* sleepQueue;
     proc* currentProc;
 } sched;
 
 //initialize the scheduler, run on creation with struct
-void schedulerInit(sched* scheduler);
+void schedulerInit();
 
 //add new process to queue
 void scheduleProcess(proc* process);
@@ -27,10 +35,10 @@ void scheduleProcess(proc* process);
 void procSwitch();
 
 //put sleeping processes on sleep queue
-void procToSleep(node* processNode);
+void procToSleep(struct scheduleNode* processNode);
 
 //put process back on ready queue from sleep queue
-void procToReady(node* processNode);
+void procToReady(struct scheduleNode* processNode);
 
 //dead process handling function
 

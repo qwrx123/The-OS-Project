@@ -11,10 +11,8 @@ add_library(
 
 registerFilesToFormat(FILES
                         proc_list.h
-                        proc.h
                         reg_switch.S
-                        scheduler.c
-                        scheduler.h)
+                        scheduler.c)
 
 target_compile_options(arch_scheduler PRIVATE
     -nostdlib

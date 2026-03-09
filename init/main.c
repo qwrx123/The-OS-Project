@@ -19,7 +19,7 @@ int kernel_init(void *name)
 	if (name)
 	{
 	}
-	uart_puts("Hello world\n");
+	uart_puts("Hello world\r\n");
 	memallc(0x1000);
 	free_memallc(memallc(0x1000));
 	return 0;

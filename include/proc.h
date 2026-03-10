@@ -10,7 +10,7 @@
 #include "kernel/types.h"
 
 
-typedef enum
+typedef enum state
 {
     READY,
     RUNNING,
@@ -19,7 +19,7 @@ typedef enum
 } state;
 
 
-typedef struct
+typedef struct context
 {
     uint64_t SP; //Stack pointer
 
@@ -39,7 +39,7 @@ typedef struct
 } context;
 
 
-typedef struct
+typedef struct proc
 {
     state proc_state;
     context proc_context;

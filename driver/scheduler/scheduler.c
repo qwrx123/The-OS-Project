@@ -5,13 +5,12 @@
  */
  
 #include "scheduler.h"
+#include "scheduleNode.h"
 #include "proc.h"
 
 extern void reg_switch();
 
-static sched* scheduler;
-
-void schedulerInit()
+void schedulerInit(sched* scheduler)
 {
     scheduler->readyQueue->next = scheduler->readyQueue;
     scheduler->readyQueue->prev = scheduler->readyQueue;
@@ -20,88 +19,47 @@ void schedulerInit()
 }
 
 
-void scheduleProcess(proc* process)
-{
-    scheduleNode* newProcess;
-    newProcess->process = process;
-
-    if(process->proc_state == READY)
-    {
-        procToReady(newProcess);
-    }
-    else if(process->proc_state == SLEEPING)
-    {
-        procToSleep(newProcess);
-    }
-}
-
-
 //not yet implemented
-void procSwitch()
-{
-    //is called on through timer interrupt or 
-    if (scheduler->readyQueue->next != scheduler->readyQueue)
-    {
-        reg_switch(scheduler->currentProc->proc_context, scheduler->readyQueue->next->proc->proc_context);
-        if (scheduler->currentProc->proc_state == READY)
-        {
-            procToReady(scheduler->currentProc);
-        }
-        else
-        {
-            procToSleep(scheduler->currentProc);
-        }
-
-        scheduler->currentProc = scheduler->readyQueue->next;
-    }
-    //remove readyQueue->next and hold it in currentProc
-}
-
-
-//not yet implemented
-void procToSleep(scheduleNode* processNode)
+void procToSleep(sched* scheduler, scheduleNode* processNode)
 {
     addProc(scheduler->sleepQueue, processNode);
 }
 
 
 //not yet implemented
-void procToReady(scheduleNode* processNode)
+void procToReady(sched* scheduler, scheduleNode* processNode)
 {
     addProc(scheduler->readyQueue, processNode);
 }
 
 
-int isEmpty(scheduleNode* head)
+void scheduleProcess(sched* scheduler, proc* process)
 {
-    return head->next == head;
-}
+    scheduleNode node = {process, 0, 0};
+    scheduleNode* newProcess = {&node};
+    scheduleNodeInit(newProcess, process);
 
-
-void addProc(scheduleNode* head, scheduleNode* newNode)
-{
-    if(isEmpty(head))
+    if(process->proc_state == READY)
     {
-        head->next = newNode;
-        head->prev = newNode;
-        newNode->next = head;
-        newNode->prev = head;
+        procToReady(scheduler, newProcess);
     }
-    else
+    else if(process->proc_state == SLEEPING)
     {
-        newNode->next = head;
-        newNode->prev = head->prev;
-        head->prev = newNode;
+        procToSleep(scheduler, newProcess);
     }
 }
 
 
-void removeProc(scheduleNode* targetProc)
+//not yet implemented
+void procSwitch(sched* scheduler)
 {
-    targetProc->next->prev = targetProc->prev;
-    targetProc->prev->next = targetProc->next;
+    //is called on through timer interrupt or 
+    if (scheduler->readyQueue->next != scheduler->readyQueue)
+    {
+        reg_switch(scheduler->currentProc->proc_context, scheduler->readyQueue->next->process->proc_context);
+        scheduleProcess(scheduler, scheduler->currentProc);
 
-    //if process state READY: addProc ReadyQueue
-    //if process state SLEEPING: addProc SleepQueue
-    //if process state ZOMBIE: targetProc->process.kill
+        scheduler->currentProc = scheduler->readyQueue->next->process;
+    }
+    //remove readyQueue->next and hold it in currentProc
 }

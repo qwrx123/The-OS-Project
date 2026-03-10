@@ -20,12 +20,12 @@ class Scheduler : public ::testing::Test
     Scheduler()
     {
         schedulerInit(testScheduler);
-        context testContext = {SP = 1000, x19 = 19, x20 = 20, x21 = 21, x22 = 22, x23 = 23, x24 = 24, x25 = 25, x26 = 26, x27 = 27, x28 = 28, x29 = 29, x30 = 30};
-        proc testProc = {proc_state = state.RUNNING, proc_context = testContext};
+        context testContext = {1000, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30};
+        proc testProc = {RUNNING, testContext};
         testScheduler->currentProc = testProc;
 
-        context testContext2 = {SP = 2000, x19 = 1, x20 = 2, x21 = 3, x22 = 4, x23 = 5, x24 = 6, x25 = 7, x26 = 8, x27 = 9, x28 = 10, x29 = 11, x30 = 12};
-        testProcessNode->process = {proc_state = state.READY, proc_context = testContext2};
+        context testContext2 = {2000, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+        testProcessNode->process = {READY, testContext2};
     }
 
     virtual ~Scheduler()
@@ -39,12 +39,12 @@ class Scheduler : public ::testing::Test
     virtual void TearDown()
     {
     }
-}
+};
 
 TEST_F(Scheduler, addProcess)
 {
     testScheduler.procToReady(testProcessNode);
-    ASSERT_EQ(testProcessNode, testScheduler->ReadyQueue->next);
+    ASSERT_EQ(testProcessNode, testScheduler->readyQueue->next);
 }
 
 TEST_F(Scheduler, switchProcess)
@@ -59,5 +59,5 @@ TEST_F(Scheduler, sleepProcess)
 {
     testProcessNode->process->proc_state = state.SLEEPING;
     testScheduler.procToSleep(testProcessNode);
-    ASSERT_EQ(testProcessNode, testScheduler->SleepQueue->next);
+    ASSERT_EQ(testProcessNode, testScheduler->sleepQueue->next);
 }

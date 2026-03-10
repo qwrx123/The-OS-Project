@@ -10,7 +10,7 @@ add_library(
     memallc.c
 )
 
-registerFilesToFormat(FILES uart.c)
+registerFilesToFormat(FILES uart.c memallc.c)
 
 target_compile_options(driver PRIVATE
   -nostdlib 

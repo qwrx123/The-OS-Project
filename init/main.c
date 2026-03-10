@@ -14,7 +14,7 @@ int kernel_init(void *name)
 #else
 	uart_init(0, id_16550);
 #endif
-	init_memallc((void*)0x400000, 0x200000);
+	init_memallc((void *)0x400000, 0x200000);
 	if (name)
 	{
 	}

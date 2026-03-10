@@ -9,23 +9,64 @@
 extern "C"
 {
     #include "scheduler.h"
+    #include "uart.h"
 }
+
+typedef struct
+{
+    volatile unsigned int DR;
+    volatile unsigned int RSR_ECR;
+    volatile unsigned int reserved1[4];
+    volatile unsigned int FR;
+    volatile unsigned int reserved2;
+    volatile unsigned int ILPR;
+    volatile unsigned int IBRD;
+    volatile unsigned int FBRD;
+    volatile unsigned int LCR_H;
+    volatile unsigned int CR;
+    volatile unsigned int IFLS;
+    volatile unsigned int IMSC;
+    volatile unsigned int RIS;
+    volatile unsigned int MIS;
+    volatile unsigned int ICR;
+    volatile unsigned int DMACR;
+    volatile unsigned int reserved3[997];
+    volatile unsigned int PeriphID0;
+    volatile unsigned int PeriphID1;
+    volatile unsigned int PeriphID2;
+    volatile unsigned int PeriphID3;
+    volatile unsigned int PCellID0;
+    volatile unsigned int PCellID1;
+    volatile unsigned int PCellID2;
+    volatile unsigned int PCellID3;
+} uart_mock_regs_t;
+
+static uart_mock_regs_t UARTMOCK = { 0 };
+#define UARTDEFAULTRESET 100;
+static int UARTRESETCYCLES = 0;
+static int UARTFRREAD = 0;
+static std::string console;
+extern void (*uart_fr_callback)();
+extern void (*uart_dr_callback)();
+extern void (*uart_lsr_callback)();
+extern void (*uart_tbr_callback)();
 
 class Scheduler : public ::testing::Test
 {
     protected:
     sched* testScheduler;
-    scheduleNode* testProcessNode;
+    proc* testProcess;
 
     Scheduler()
     {
         schedulerInit(testScheduler);
-        context testContext = {1000, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30};
-        proc testProc = {RUNNING, testContext};
-        testScheduler->currentProc = testProc;
+        context testContext = { 1000, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 };
+        proc testProc1 = {RUNNING, testContext};
+        testScheduler->currentProc = &testProc1;
 
-        context testContext2 = {2000, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-        testProcessNode->process = {READY, testContext2};
+        context testContext2 = { 2000, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+        proc testProc2 = {READY, testContext2};
+        testProcess = &testProc2;
     }
 
     virtual ~Scheduler()
@@ -41,23 +82,28 @@ class Scheduler : public ::testing::Test
     }
 };
 
-TEST_F(Scheduler, addProcess)
+TEST_F(Scheduler, addProcessEmptyQueue)
 {
-    testScheduler.procToReady(testProcessNode);
-    ASSERT_EQ(testProcessNode, testScheduler->readyQueue->next);
+    scheduleProcess(testScheduler, testProcess);
+    ASSERT_EQ(testProcess, getNextProcess(testScheduler));
+}
+
+TEST_F(Scheduler, addProcessQueueLine)
+{
+    scheduleProcess(testScheduler, testProcess);
+    ASSERT_EQ(0, 1);
 }
 
 TEST_F(Scheduler, switchProcess)
 {
-    proc expectedProcess = testProcessNode->process;
-    testScheduler.procToReady(testProcessNode);
-    testScheduler.procSwitch();
-    ASSERT_EQ(expectedProcess, testScheduler->currentProc);
+    scheduleProcess(testScheduler, testProcess);
+    procSwitch(testScheduler);
+    ASSERT_EQ(testProcess, testScheduler->currentProc);
 }
 
 TEST_F(Scheduler, sleepProcess)
 {
-    testProcessNode->process->proc_state = state.SLEEPING;
-    testScheduler.procToSleep(testProcessNode);
-    ASSERT_EQ(testProcessNode, testScheduler->sleepQueue->next);
+    testProcess->proc_state = SLEEPING;
+    scheduleProcess(testScheduler, testProcess);
+    ASSERT_EQ(testProcess, getNextSleepProcess(testScheduler));
 }

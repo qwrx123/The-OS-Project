@@ -63,3 +63,23 @@ void procSwitch(sched* scheduler)
     }
     //remove readyQueue->next and hold it in currentProc
 }
+
+proc* getNextProcess(sched* scheduler)
+{
+    return scheduler->readyQueue->next->process;
+}
+
+proc* getLastProcess(sched* scheduler)
+{
+    return scheduler->readyQueue->prev->process;
+}
+
+proc* getNextSleepProcess(sched* scheduler)
+{
+    return scheduler->sleepQueue->next->process;
+}
+
+proc* getLastSleepProcess(sched* scheduler)
+{
+    return scheduler->sleepQueue->prev->process;
+}

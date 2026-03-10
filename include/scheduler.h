@@ -25,4 +25,12 @@ void scheduleProcess(sched* scheduler, proc* process);
 //switch process
 void procSwitch(sched* scheduler);
 
+proc* getNextProcess(sched* scheduler);
+
+proc* getLastProcess(sched* scheduler);
+
+proc* getNextSleepProcess(sched* scheduler);
+
+proc* getLastSleepProcess(sched* scheduler);
+
 #endif

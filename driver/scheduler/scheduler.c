@@ -8,7 +8,7 @@
 #include "scheduleNode.h"
 #include "proc.h"
 
-extern void reg_switch();
+extern void reg_switch(context outgoing, context incoming);
 
 void schedulerInit(sched* scheduler)
 {
@@ -56,7 +56,7 @@ void procSwitch(sched* scheduler)
     //is called on through timer interrupt or 
     if (scheduler->readyQueue->next != scheduler->readyQueue)
     {
-        reg_switch(scheduler->currentProc->proc_context, scheduler->readyQueue->next->process->proc_context);
+        //reg_switch(scheduler->currentProc->proc_context, scheduler->readyQueue->next->process->proc_context);
         scheduleProcess(scheduler, scheduler->currentProc);
 
         scheduler->currentProc = scheduler->readyQueue->next->process;

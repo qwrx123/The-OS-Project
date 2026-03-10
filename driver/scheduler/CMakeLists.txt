@@ -4,18 +4,23 @@
 #SPDX-License-Identifier: BSD-2-Clause
 
 add_library(
-    arch_scheduler
+    scheduler
     STATIC
     scheduler.c
 )
 
+if(NOT BUILD_TESTING)
+    add_library(
+        reg_switch.S
+    )
+endif()
+
 registerFilesToFormat(FILES
-                        proc_list.h
                         reg_switch.S
                         scheduler.c
                         scheduleNode.h)
 
-target_compile_options(arch_scheduler PRIVATE
+target_compile_options(scheduler PRIVATE
     -nostdlib
     -ffreestanding
     -Wall
@@ -23,7 +28,7 @@ target_compile_options(arch_scheduler PRIVATE
     -Wpedantic
     -Werror)
 
-target_include_directories(arch_scheduler
+target_include_directories(scheduler
     PUBLIC
     ${PROJECT_SOURCE_DIR}/include
 )

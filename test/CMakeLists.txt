@@ -27,6 +27,7 @@ target_include_directories(projectTests PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(projectTests
     PRIVATE
     driver
+    scheduler
     GTest::gtest_main)
 
 include(GoogleTest)

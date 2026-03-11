@@ -55,18 +55,23 @@ class Scheduler : public ::testing::Test
 {
     protected:
     sched* testScheduler;
-    proc* testProcess;
+    proc testProcessRun;
+    proc testProcessReady;
+    proc testProcessReady2;
 
     Scheduler()
     {
-        schedulerInit(testScheduler);
-        context testContext = { 1000, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 };
-        proc testProc1 = {RUNNING, testContext};
-        testScheduler->currentProc = &testProc1;
+        std::cout << "initiallize test scheduler" << std::endl;
+        sched Sched = {0, 0, 0};
+        testScheduler = schedulerInit(&Sched);
 
-        context testContext2 = { 2000, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-        proc testProc2 = {READY, testContext2};
-        testProcess = &testProc2;
+        context testContext0 = { 1000, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 };
+        testProcessRun = {RUNNING, testContext0};
+        testScheduler->currentProc = &testProcessRun;
+
+        context testContext1 = { 2000, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+        testProcessReady = {READY, testContext1};
+        std::cout << "finished initiallization" << std::endl;
     }
 
     virtual ~Scheduler()
@@ -84,26 +89,32 @@ class Scheduler : public ::testing::Test
 
 TEST_F(Scheduler, addProcessEmptyQueue)
 {
-    scheduleProcess(testScheduler, testProcess);
-    ASSERT_EQ(testProcess, getNextProcess(testScheduler));
+    testScheduler = scheduleProcess(testScheduler, &testProcessReady);
+    ASSERT_EQ(&testProcessReady, getNextProcess(testScheduler));
 }
 
 TEST_F(Scheduler, addProcessQueueLine)
 {
-    scheduleProcess(testScheduler, testProcess);
-    ASSERT_EQ(0, 1);
+    testScheduler = scheduleProcess(testScheduler, &testProcessReady);
+    context newContext = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    testProcessReady2 = {READY, newContext};
+    testScheduler = scheduleProcess(testScheduler, &testProcessReady2);
+    std::cout << getNextProcess(testScheduler) << std::endl;
+    std::cout << getLastProcess(testScheduler) << std::endl;
+    ASSERT_EQ(&testProcessReady, getNextProcess(testScheduler));
+    ASSERT_EQ(&testProcessReady2, getLastProcess(testScheduler));
 }
 
 TEST_F(Scheduler, switchProcess)
 {
-    scheduleProcess(testScheduler, testProcess);
+    testScheduler = scheduleProcess(testScheduler, &testProcessReady);
     procSwitch(testScheduler);
-    ASSERT_EQ(testProcess, testScheduler->currentProc);
+    ASSERT_EQ(&testProcessReady, testScheduler->currentProc);
 }
 
 TEST_F(Scheduler, sleepProcess)
 {
-    testProcess->proc_state = SLEEPING;
-    scheduleProcess(testScheduler, testProcess);
-    ASSERT_EQ(testProcess, getNextSleepProcess(testScheduler));
+    testProcessReady.proc_state = SLEEPING;
+    testScheduler = scheduleProcess(testScheduler, &testProcessReady);
+    ASSERT_EQ(&testProcessReady, getNextSleepProcess(testScheduler));
 }

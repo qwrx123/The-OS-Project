@@ -8,6 +8,7 @@
 #define SCHEDULER_H
 
 #include "proc.h"
+#include "../driver/scheduler/scheduleNode.h"
 
 typedef struct sched
 {
@@ -17,10 +18,10 @@ typedef struct sched
 } sched;
 
 //initialize the scheduler, run on creation with struct
-void schedulerInit(sched* scheduler);
+sched* schedulerInit(sched* scheduler);
 
 //add new process to queue
-void scheduleProcess(sched* scheduler, proc* process);
+sched* scheduleProcess(sched* scheduler, proc* process);
 
 //switch process
 void procSwitch(sched* scheduler);

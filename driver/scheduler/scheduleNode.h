@@ -18,47 +18,10 @@ typedef struct scheduleNode
     struct scheduleNode* prev;
 } scheduleNode;
 
+void scheduleNodeInit(scheduleNode* node, proc* process);
 
-void scheduleNodeInit(scheduleNode* node, proc* process)
-{
-    node->process = process;
-    node->next = node;
-    node->prev = node;
-}
+void addProc(scheduleNode* head, scheduleNode* newNode);
 
-
-int isEmpty(scheduleNode* head)
-{
-    return head->next == head;
-}
-
-
-void addProc(scheduleNode* head, scheduleNode* newNode)
-{
-    if(isEmpty(head))
-    {
-        head->next = newNode;
-        head->prev = newNode;
-        newNode->next = head;
-        newNode->prev = head;
-    }
-    else
-    {
-        newNode->next = head;
-        newNode->prev = head->prev;
-        head->prev = newNode;
-    }
-}
-
-
-void removeProc(scheduleNode* targetProc)
-{
-    targetProc->next->prev = targetProc->prev;
-    targetProc->prev->next = targetProc->next;
-
-    //if process state READY: addProc ReadyQueue
-    //if process state SLEEPING: addProc SleepQueue
-    //if process state ZOMBIE: targetProc->process.kill
-}
+proc* dequeue(scheduleNode* targetProc);
 
 #endif

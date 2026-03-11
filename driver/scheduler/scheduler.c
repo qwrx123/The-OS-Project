@@ -5,63 +5,60 @@
  */
  
 #include "scheduler.h"
-#include "scheduleNode.h"
 #include "proc.h"
 
 extern void reg_switch(context outgoing, context incoming);
 
-void schedulerInit(sched* scheduler)
+sched* schedulerInit(sched* scheduler)
 {
-    scheduler->readyQueue->next = scheduler->readyQueue;
-    scheduler->readyQueue->prev = scheduler->readyQueue;
-    scheduler->sleepQueue->next = scheduler->sleepQueue;
-    scheduler->sleepQueue->prev = scheduler->sleepQueue;
+    static scheduleNode ready = {0, 0, 0};
+    static scheduleNode sleep = {0, 0, 0};
+    ready.next = &ready;
+    ready.prev = &ready;
+    sleep.next = &sleep;
+    sleep.prev = &sleep;
+    scheduler->readyQueue = &ready;
+    scheduler->sleepQueue = &sleep;
+    return scheduler;
 }
 
-
-//not yet implemented
 void procToSleep(sched* scheduler, scheduleNode* processNode)
 {
     addProc(scheduler->sleepQueue, processNode);
 }
 
-
-//not yet implemented
 void procToReady(sched* scheduler, scheduleNode* processNode)
 {
     addProc(scheduler->readyQueue, processNode);
 }
 
-
-void scheduleProcess(sched* scheduler, proc* process)
+sched* scheduleProcess(sched* scheduler, proc* process)
 {
-    scheduleNode node = {process, 0, 0};
-    scheduleNode* newProcess = {&node};
-    scheduleNodeInit(newProcess, process);
+    scheduleNode node = {0, 0, 0};
+    scheduleNodeInit(&node, process);
 
     if(process->proc_state == READY)
     {
-        procToReady(scheduler, newProcess);
+        procToReady(scheduler, &node);
     }
     else if(process->proc_state == SLEEPING)
     {
-        procToSleep(scheduler, newProcess);
+        procToSleep(scheduler, &node);
     }
+
+    return scheduler;
 }
 
-
-//not yet implemented
 void procSwitch(sched* scheduler)
 {
-    //is called on through timer interrupt or 
     if (scheduler->readyQueue->next != scheduler->readyQueue)
     {
+        scheduler->currentProc->proc_state = READY;
         //reg_switch(scheduler->currentProc->proc_context, scheduler->readyQueue->next->process->proc_context);
         scheduleProcess(scheduler, scheduler->currentProc);
 
-        scheduler->currentProc = scheduler->readyQueue->next->process;
+        scheduler->currentProc = dequeue(scheduler->readyQueue->next);
     }
-    //remove readyQueue->next and hold it in currentProc
 }
 
 proc* getNextProcess(sched* scheduler)

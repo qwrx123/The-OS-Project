@@ -7,6 +7,7 @@ add_library(
     scheduler
     STATIC
     scheduler.c
+    scheduleNode.c
 )
 
 if(NOT BUILD_TESTING)
@@ -18,7 +19,8 @@ endif()
 registerFilesToFormat(FILES
                         reg_switch.S
                         scheduler.c
-                        scheduleNode.h)
+                        scheduleNode.h
+                        scheduleNode.c)
 
 target_compile_options(scheduler PRIVATE
     -nostdlib

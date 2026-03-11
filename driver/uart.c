@@ -37,14 +37,20 @@ void uart_init(uart_regs_t *uart_device, uart_type init_type)
 	}
 	switch (init_type)
 	{
+#ifndef QEMU
+	case id_default:
+	default:
+#endif
 	case id_16550:
 		UART->id_16550.IIR_FCR = 0x01;
 		uart_putc_impl = &uart_putc_16550;
 		uart_puts_impl = &uart_puts_16550;
 		break;
 	case id_pl011:
+#ifdef QEMU
 	case id_default:
 	default:
+#endif
 		uart_putc_impl = &uart_putc_pl011;
 		uart_puts_impl = &uart_puts_pl011;
 		break;

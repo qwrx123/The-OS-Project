@@ -23,12 +23,10 @@ void addProc(scheduleNode* head, scheduleNode* newNode)
 }
 
 
-proc* dequeue(scheduleNode* targetProc)
+scheduleNode* dequeue(scheduleNode* targetProc)
 {
     targetProc->next->prev = targetProc->prev;
     targetProc->prev->next = targetProc->next;
 
-    proc* process = targetProc->process;
-    //delete targetProc
-    return process;
+    return targetProc;
 }

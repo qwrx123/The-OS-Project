@@ -18,10 +18,13 @@ typedef struct scheduleNode
     struct scheduleNode* prev;
 } scheduleNode;
 
+//initiallize new schedule nodes with the process they point to.
 void scheduleNodeInit(scheduleNode* node, proc* process);
 
+//add a schedule node to a schedule node list.
 void addProc(scheduleNode* head, scheduleNode* newNode);
 
-proc* dequeue(scheduleNode* targetProc);
+//remove and return the specified node in the list.
+scheduleNode* dequeue(scheduleNode* targetProc);
 
 #endif

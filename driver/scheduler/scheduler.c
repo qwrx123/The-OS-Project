@@ -6,20 +6,20 @@
  
 #include "scheduler.h"
 #include "proc.h"
+#include "memallc.h"
 
 extern void reg_switch(context outgoing, context incoming);
 
-sched* schedulerInit(sched* scheduler)
+void schedulerInit(sched* scheduler)
 {
-    static scheduleNode ready = {0, 0, 0};
-    static scheduleNode sleep = {0, 0, 0};
-    ready.next = &ready;
-    ready.prev = &ready;
-    sleep.next = &sleep;
-    sleep.prev = &sleep;
-    scheduler->readyQueue = &ready;
-    scheduler->sleepQueue = &sleep;
-    return scheduler;
+    scheduleNode* ready = memallc(sizeof(scheduleNode));
+    scheduleNode* sleep = memallc(sizeof(scheduleNode));
+    ready->next = ready;
+    ready->prev = ready;
+    sleep->next = sleep;
+    sleep->prev = sleep;
+    scheduler->readyQueue = ready;
+    scheduler->sleepQueue = sleep;
 }
 
 void procToSleep(sched* scheduler, scheduleNode* processNode)
@@ -32,33 +32,59 @@ void procToReady(sched* scheduler, scheduleNode* processNode)
     addProc(scheduler->readyQueue, processNode);
 }
 
-sched* scheduleProcess(sched* scheduler, proc* process)
+void scheduleProcess(sched* scheduler, proc* process)
 {
-    scheduleNode node = {0, 0, 0};
-    scheduleNodeInit(&node, process);
+    scheduleNode* node = memallc(sizeof(scheduleNode));
+    scheduleNodeInit(node, process);
 
     if(process->proc_state == READY)
     {
-        procToReady(scheduler, &node);
+        procToReady(scheduler, node);
     }
     else if(process->proc_state == SLEEPING)
     {
-        procToSleep(scheduler, &node);
+        procToSleep(scheduler, node);
     }
-
-    return scheduler;
+    else if(process->proc_state == RUNNING)
+    {
+        //for testing purposes. should probably make an actual "if empty make process run" thing
+        scheduler->currentProc = node;
+    }
 }
 
 void procSwitch(sched* scheduler)
 {
-    if (scheduler->readyQueue->next != scheduler->readyQueue)
+    if (scheduler->readyQueue->next == scheduler->readyQueue)
     {
-        scheduler->currentProc->proc_state = READY;
-        //reg_switch(scheduler->currentProc->proc_context, scheduler->readyQueue->next->process->proc_context);
-        scheduleProcess(scheduler, scheduler->currentProc);
-
-        scheduler->currentProc = dequeue(scheduler->readyQueue->next);
+        return;
     }
+
+    scheduler->currentProc->process->proc_state = READY;
+    //reg_switch(scheduler->currentProc->proc_context, scheduler->readyQueue->next->process->proc_context);
+    procToReady(scheduler, scheduler->currentProc);
+
+    scheduler->currentProc = dequeue(scheduler->readyQueue->next);
+}
+
+void killScheduler(sched* scheduler)
+{
+    while(scheduler->readyQueue->next != scheduler->readyQueue)
+    {
+        free_memallc(scheduler->readyQueue->next->process);
+        free_memallc(dequeue(scheduler->readyQueue->next));
+    }
+
+    while(scheduler->sleepQueue->next != scheduler->sleepQueue)
+    {
+        free_memallc(scheduler->sleepQueue->next->process);
+        free_memallc(dequeue(scheduler->sleepQueue->next));
+    }
+
+    free_memallc(scheduler->readyQueue);
+    free_memallc(scheduler->sleepQueue);
+    free_memallc(scheduler->currentProc->process);
+    free_memallc(scheduler->currentProc);
+    free_memallc(scheduler);
 }
 
 proc* getNextProcess(sched* scheduler)
@@ -79,4 +105,9 @@ proc* getNextSleepProcess(sched* scheduler)
 proc* getLastSleepProcess(sched* scheduler)
 {
     return scheduler->sleepQueue->prev->process;
+}
+
+proc* getRunningProcess(sched* scheduler)
+{
+    return scheduler->currentProc->process;
 }

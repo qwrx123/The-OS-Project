@@ -10,6 +10,7 @@ extern "C"
 {
     #include "scheduler.h"
     #include "uart.h"
+    #include "memallc.h"
 }
 
 typedef struct
@@ -51,35 +52,49 @@ extern void (*uart_dr_callback)();
 extern void (*uart_lsr_callback)();
 extern void (*uart_tbr_callback)();
 
+    static sched* testScheduler;
+    proc* testProcessRun;
+    proc* testProcessReady;
+    proc* testProcessReady2;
+
 class Scheduler : public ::testing::Test
 {
     protected:
-    sched* testScheduler;
-    proc testProcessRun;
-    proc testProcessReady;
-    proc testProcessReady2;
 
     Scheduler()
     {
-        std::cout << "initiallize test scheduler" << std::endl;
-        sched Sched = {0, 0, 0};
-        testScheduler = schedulerInit(&Sched);
-
-        context testContext0 = { 1000, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 };
-        testProcessRun = {RUNNING, testContext0};
-        testScheduler->currentProc = &testProcessRun;
-
-        context testContext1 = { 2000, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-        testProcessReady = {READY, testContext1};
-        std::cout << "finished initiallization" << std::endl;
     }
 
     virtual ~Scheduler()
     {
+        killScheduler(testScheduler);
     }
 
     virtual void SetUp()
     {
+        uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
+        init_memallc((void*)0x1000, 0x200000);
+
+        std::cout << "initiallize test scheduler" << std::endl;
+        std::cout << sizeof(sched) << std::endl;
+        testScheduler = (sched*) memallc(sizeof(sched));
+        std::cout << "test" << std::endl;
+        *testScheduler = (sched) {0, 0, 0};
+
+        schedulerInit(testScheduler);
+
+
+        context testContext0 = { 1000, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 };
+        testProcessRun = (proc*) memallc(sizeof(proc));
+        testProcessRun->proc_state = RUNNING;
+        testProcessRun->proc_context = testContext0;
+        scheduleProcess(testScheduler, testProcessRun);
+
+        context testContext1 = { 2000, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+        testProcessReady = (proc*) memallc(sizeof(proc));
+        testProcessReady->proc_state = READY;
+        testProcessReady->proc_context = testContext1;
+        std::cout << "finished initiallization" << std::endl;
     }
 
     virtual void TearDown()
@@ -89,32 +104,34 @@ class Scheduler : public ::testing::Test
 
 TEST_F(Scheduler, addProcessEmptyQueue)
 {
-    testScheduler = scheduleProcess(testScheduler, &testProcessReady);
-    ASSERT_EQ(&testProcessReady, getNextProcess(testScheduler));
+    scheduleProcess(testScheduler, testProcessReady);
+    ASSERT_EQ(testProcessReady, getNextProcess(testScheduler));
 }
 
 TEST_F(Scheduler, addProcessQueueLine)
 {
-    testScheduler = scheduleProcess(testScheduler, &testProcessReady);
+    scheduleProcess(testScheduler, testProcessReady);
     context newContext = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    testProcessReady2 = {READY, newContext};
-    testScheduler = scheduleProcess(testScheduler, &testProcessReady2);
+    testProcessReady2 = (proc*) memallc(sizeof(proc));
+    testProcessReady2->proc_state = READY;
+    testProcessReady2->proc_context = newContext;
+    scheduleProcess(testScheduler, testProcessReady2);
     std::cout << getNextProcess(testScheduler) << std::endl;
     std::cout << getLastProcess(testScheduler) << std::endl;
-    ASSERT_EQ(&testProcessReady, getNextProcess(testScheduler));
-    ASSERT_EQ(&testProcessReady2, getLastProcess(testScheduler));
+    ASSERT_EQ(testProcessReady, getNextProcess(testScheduler));
+    ASSERT_EQ(testProcessReady2, getLastProcess(testScheduler));
 }
 
 TEST_F(Scheduler, switchProcess)
 {
-    testScheduler = scheduleProcess(testScheduler, &testProcessReady);
+    scheduleProcess(testScheduler, testProcessReady);
     procSwitch(testScheduler);
-    ASSERT_EQ(&testProcessReady, testScheduler->currentProc);
+    ASSERT_EQ(testProcessReady, getRunningProcess(testScheduler));
 }
 
 TEST_F(Scheduler, sleepProcess)
 {
-    testProcessReady.proc_state = SLEEPING;
-    testScheduler = scheduleProcess(testScheduler, &testProcessReady);
-    ASSERT_EQ(&testProcessReady, getNextSleepProcess(testScheduler));
+    testProcessReady->proc_state = SLEEPING;
+    scheduleProcess(testScheduler, testProcessReady);
+    ASSERT_EQ(testProcessReady, getNextSleepProcess(testScheduler));
 }

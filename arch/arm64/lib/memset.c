@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [year] [your name]
+ * Copyright (c) 2026 Nathaniel Smith
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -10,7 +10,7 @@
 void *memset(void *dest, int ch, uint64_t count)
 {
 	char *realDest = (char *)dest;
-	for (int i = 0; i < count; i++)
+	for (uint64_t i = 0; i < count; i++)
 	{
 		*realDest = ch;
 		realDest++;

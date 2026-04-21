@@ -18,7 +18,7 @@ uint64_t interupt_timer = CNTPS_CVAL_EL1;
 uint64_t freq;
 uint64_t time;
 
-// typedef struct 
+// typedef struct
 
 /**
  * @brief Initializes the timer.
@@ -26,9 +26,14 @@ uint64_t time;
 void init_timer();
 
 /**
- * @brief Enables the timer.
+ * @brief Sets bit[2] to 1, bit[1] to 0, and bit[0] of CNTPS_CTL_EL1 to 1 to enable the timer
  */
 void enable_timer();
+
+/**
+ * @brief Sets bit[2] to 1, bit[1] to 0, and bit[0] of CNTPS_CTL_EL1 to 0 to disable the timer
+ */
+void disable_timer();
 
 /**
  * @brief Handles the timer interrupt.
@@ -36,7 +41,7 @@ void enable_timer();
 void timer_interrupt();
 
 /**
- * @brief Gets the current timer value.\
+ * @brief Gets the current timer value.
  * @return The current timer value.
  */
 uint64_t get_time();

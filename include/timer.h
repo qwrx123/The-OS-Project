@@ -53,4 +53,10 @@ uint64_t get_time();
  */
 uint64_t get_timer_freq();
 
+/**
+ * @brief Converts time to a string.
+ * @return A string representation of the time in seconds.
+ */
+char *to_string();
+
 #endif

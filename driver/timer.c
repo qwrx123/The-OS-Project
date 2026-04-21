@@ -6,6 +6,8 @@
 
 #include "timer.h"
 #include "uart.h"
+#include "kernel/string.h"
+#include "kernel/stddef.h"
 
 static inline uint64_t read_cntfrq_el0(void)
 {
@@ -73,10 +75,7 @@ void timer_interrupt()
 	interrupt = read_cntps_cval_el1() + freq;
 	write_cntps_cval_el1(interrupt);
 	uart_puts("timer: interrupt occurred\r\n");
-
-	// Handle the timer interrupt
-	// This function should be called when the timer interrupt occurs
-	// You can add your interrupt handling code here
+	to_string();
 }
 
 uint64_t get_time()
@@ -89,4 +88,14 @@ uint64_t get_timer_freq()
 {
 	uart_puts("timer: got frequency \r\n");
 	return read_cntfrq_el0();
+}
+
+char *to_string()
+{
+	uart_puts("timer: kernal has been running for ");
+	// uint64_t seconds = (time / freq);
+	// TODO: Implement a more robust integer to string conversion function that can handle larger numbers and edge cases.
+	// uart_puts(seconds);
+	uart_puts(" seconds\r\n");
+	return NULL;
 }

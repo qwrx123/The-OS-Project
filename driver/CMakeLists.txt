@@ -8,9 +8,10 @@ add_library(
     STATIC
     uart.c
     memallc.c
+    timer.c
 )
 
-registerFilesToFormat(FILES uart.c memallc.c)
+registerFilesToFormat(FILES uart.c memallc.c timer.c)
 
 target_compile_options(driver PRIVATE
   -nostdlib 

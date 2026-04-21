@@ -17,6 +17,7 @@ uint64_t interupt_timer = CNTPS_CVAL_EL1;
 
 uint64_t freq;
 uint64_t time;
+uint64_t interrupt;
 
 // typedef struct
 

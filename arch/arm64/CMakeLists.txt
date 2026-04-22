@@ -12,6 +12,7 @@ add_library(
     $<TARGET_OBJECTS:arch_kernel>
     $<TARGET_OBJECTS:arch_memorymanager>
     $<TARGET_OBJECTS:arch_lib>
+    $<TARGET_OBJECTS:arch_scheduler>
 )
 
 target_compile_options(arch_aarch64 PRIVATE
@@ -25,3 +26,4 @@ target_compile_options(arch_aarch64 PRIVATE
 add_subdirectory(kernel)
 add_subdirectory(memorymanager)
 add_subdirectory(lib)
+add_subdirectory(scheduler)

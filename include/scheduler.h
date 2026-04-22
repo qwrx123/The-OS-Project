@@ -12,42 +12,42 @@
 
 typedef struct sched
 {
-    scheduleNode* readyQueue;
-    scheduleNode* sleepQueue;
-    scheduleNode* currentProc;
+	scheduleNode *readyQueue;
+	scheduleNode *sleepQueue;
+	scheduleNode *currentProc;
 } sched;
 
 //initialize the scheduler, run on creation with struct
-void schedulerInit(sched* scheduler);
+void schedulerInit(sched *scheduler);
 
 //add new process to queue
-void scheduleProcess(sched* scheduler, proc* process);
+void scheduleProcess(sched *scheduler, proc *process);
 
 //puts schedule node on the ready queue; included for testing until I can get scheduleProcess to stop segfaulting
-void procToReady(sched* scheduler, scheduleNode* processNode);
+void procToReady(sched *scheduler, scheduleNode *processNode);
 
 //puts schedule node on the sleep queue; included for testing until I can get scheduleProcess to stop segfaulting
-void procToSleep(sched*scheduler, scheduleNode* processNode);
+void procToSleep(sched *scheduler, scheduleNode *processNode);
 
 //switch process
-void procSwitch(sched* scheduler);
+void procSwitch(sched *scheduler);
 
 //method for deallocating all processes and scheduleNodes within the scheduler,
 //then the scheduler itself.
-void killScheduler(sched* scheduler);
+void killScheduler(sched *scheduler);
 
 //for testing. returns the process in the next ready node.
-proc* getNextProcess(sched* scheduler);
+proc *getNextProcess(sched *scheduler);
 
 //for testing. returns the process of the last added ready node.
-proc* getLastProcess(sched* scheduler);
+proc *getLastProcess(sched *scheduler);
 
 //for testing. returns the process in the next sleeping node.
-proc* getNextSleepProcess(sched* scheduler);
+proc *getNextSleepProcess(sched *scheduler);
 
 //for testing. returns the process of the last added sleeping node.
-proc* getLastSleepProcess(sched* scheduler);
+proc *getLastSleepProcess(sched *scheduler);
 
-proc* getRunningProcess(sched* scheduler);
+proc *getRunningProcess(sched *scheduler);
 
 #endif

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier:BSD-2-Clause
  */
 
-.global reg_switch
+.global _reg_switch
 
-	reg_switch :
+	_reg_switch :
 	//store context of process switching out
 	str x19,
 	[x0, #8] str x20, [x0, #16] str x21, [x0, #24] str x22,

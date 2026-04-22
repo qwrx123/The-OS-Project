@@ -17,7 +17,6 @@ if(NOT BUILD_TESTING)
 endif()
 
 registerFilesToFormat(FILES
-                        reg_switch.S
                         scheduler.c
                         scheduleNode.h
                         scheduleNode.c)

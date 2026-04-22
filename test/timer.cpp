@@ -52,63 +52,63 @@ extern void (*uart_tbr_callback)();
 
 TEST(timer_test, init_timer)
 {
-    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
-    init_timer();
-    EXPECT_GT(freq, 0);
-    EXPECT_GT(time, 0);
-    EXPECT_GT(sec, 0);
-    EXPECT_GT(interrupt, 0);
+	uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
+	init_timer();
+	EXPECT_GT(get_timer_freq(), 0);
+	EXPECT_GT(get_time(), 0);
+	EXPECT_GT(get_timer_sec(), 0);
+	EXPECT_GT(get_timer_ctl(), 0);
 }
 
 TEST(timer_test, enable_timer)
 {
-    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
-    init_timer();
-    enable_timer();
-    uint64_t ctl = get_timer_ctl();
-    EXPECT_EQ(ctl & 5, 5);
+	uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
+	init_timer();
+	enable_timer();
+	uint64_t ctl = get_timer_ctl();
+	EXPECT_EQ(ctl & 5, 5);
 }
 
 TEST(timer_test, disable_timer)
 {
-    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
-    init_timer();
-    enable_timer();
-    disable_timer();
-    uint64_t ctl = get_timer_ctl();
-    EXPECT_EQ(ctl & 5, 0);
+	uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
+	init_timer();
+	enable_timer();
+	disable_timer();
+	uint64_t ctl = get_timer_ctl();
+	EXPECT_EQ(ctl & 5, 0);
 }
 
 TEST(timer_test, get_time)
 {
-    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
-    init_timer();
-    uint64_t t1 = get_time();
-    uint64_t t2 = get_time();
-    EXPECT_GT(t2, t1);
+	uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
+	init_timer();
+	uint64_t t1 = get_time();
+	uint64_t t2 = get_time();
+	EXPECT_GT(t2, t1);
 }
 
 TEST(timer_test, get_timer_freq)
 {
-    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
-    init_timer();
-    uint64_t f = get_timer_freq();
-    EXPECT_GT(f, 0);
+	uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
+	init_timer();
+	uint64_t f = get_timer_freq();
+	EXPECT_GT(f, 0);
 }
 
 TEST(timer_test, get_timer_ctl)
 {
-    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
-    init_timer();
-    uint64_t ctl = get_timer_ctl();
-    EXPECT_EQ(ctl & 5, 0);
+	uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
+	init_timer();
+	uint64_t ctl = get_timer_ctl();
+	EXPECT_EQ(ctl & 5, 0);
 }
 
 TEST(timer_test, get_timer_sec)
 {
-    uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
-    init_timer();
-    uint64_t sec1 = get_timer_sec();
-    uint64_t sec2 = get_timer_sec();
-    EXPECT_GE(sec2, sec1);
+	uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
+	init_timer();
+	uint64_t sec1 = get_timer_sec();
+	uint64_t sec2 = get_timer_sec();
+	EXPECT_GE(sec2, sec1);
 }

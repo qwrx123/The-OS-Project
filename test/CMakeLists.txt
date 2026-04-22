@@ -24,6 +24,13 @@ add_executable(projectTests
 
 target_include_directories(projectTests PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
+target_sources(projectTests PRIVATE
+    driver_uart.cpp
+    memallc.cpp
+    timer.cpp
+    mocks/mock_timer_imp.c
+)
+
 target_link_libraries(projectTests
     PRIVATE
     driver

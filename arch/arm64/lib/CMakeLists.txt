@@ -7,6 +7,7 @@ add_library(
     arch_lib
     STATIC
     memset.c 
+    timer_imp.c
 )
 
 registerFilesToFormat(FILES memset.c)

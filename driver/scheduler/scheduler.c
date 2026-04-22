@@ -62,8 +62,12 @@ void procSwitch(sched *scheduler)
 	}
 
 	scheduler->currentProc->process->proc_state = READY;
+
+#ifndef TESTING
 	reg_switch(scheduler->currentProc->process->proc_context,
 		   scheduler->readyQueue->next->process->proc_context);
+#endif
+
 	procToReady(scheduler, scheduler->currentProc);
 
 	scheduler->currentProc = dequeue(scheduler->readyQueue->next);

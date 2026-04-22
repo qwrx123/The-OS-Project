@@ -10,12 +10,6 @@ add_library(
     scheduleNode.c
 )
 
-if(NOT BUILD_TESTING)
-    add_library(
-        reg_switch.S
-    )
-endif()
-
 registerFilesToFormat(FILES
                         scheduler.c
                         scheduleNode.h

@@ -18,6 +18,7 @@ uint64_t interupt_timer = CNTPS_CVAL_EL1;
 uint64_t freq;
 uint64_t time;
 uint64_t interrupt;
+uint64_t sec;
 
 // typedef struct
 
@@ -52,6 +53,18 @@ uint64_t get_time();
  * @return The timer frequency.
  */
 uint64_t get_timer_freq();
+
+/**
+ * @brief Gets the timer control register value.
+ * @return The timer control register value.
+ */
+uint64_t get_timer_ctl();
+
+/**
+ * @brief Gets the time in seconds.
+ * @return The time in seconds.
+ */
+uint64_t get_timer_sec();
 
 /**
  * @brief Converts time to a string.

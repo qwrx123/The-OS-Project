@@ -8,6 +8,7 @@
 #include "uart.h"
 #include "kernel/string.h"
 #include "kernel/stddef.h"
+#include "kernel/stdint.h"
 
 static inline uint64_t read_cntfrq_el0(void)
 {
@@ -51,6 +52,7 @@ void init_timer()
 {
 	freq = read_cntfrq_el0();
 	time = read_cntpct_el0();
+	sec = time / freq;
 	write_cntps_cval_el1(time + freq);
 	uart_puts("timer: initialized\r\n");
 }
@@ -90,12 +92,41 @@ uint64_t get_timer_freq()
 	return read_cntfrq_el0();
 }
 
+uint64_t get_timer_ctl()
+{
+	uart_puts("timer: got control register value\r\n");
+	return read_cntps_ctl_el1();
+}
+
+uint64_t get_timer_sec()
+{
+	uart_puts("timer: got time in seconds\r\n");
+	time = read_cntpct_el0();
+	return (time / freq);
+}
+
 char *to_string()
 {
 	uart_puts("timer: kernal has been running for ");
-	// uint64_t seconds = (time / freq);
+	uint64_t sec = (time / freq);
 	// TODO: Implement a more robust integer to string conversion function that can handle larger numbers and edge cases.
-	// uart_puts(seconds);
-	uart_puts(" seconds\r\n");
+	/*
+	uint64_t sec = (time / freq);
+	uint64_t temp = sec;
+	uint64_t length = 0;
+	while (temp > 0)
+	{
+		length++;
+		temp /= 10;
+	}
+	char* seconds[20];
+	for (uint64_t i = length - 1; i >= 0; i--)
+	{
+		seconds[i] = sec % 10 + '0';
+		sec /= 10;
+	}
+	seconds[length] = '\0';
+	uart_puts(seconds);
+	*/
 	return NULL;
 }

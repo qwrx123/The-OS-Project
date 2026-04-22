@@ -10,6 +10,7 @@
 
 extern void reg_switch(context outgoing, context incoming);
 
+//does not work, segfaults at memory allocation (even if malloc used instead)
 void schedulerInit(sched* scheduler)
 {
     scheduleNode* ready = memallc(sizeof(scheduleNode));
@@ -32,6 +33,7 @@ void procToReady(sched* scheduler, scheduleNode* processNode)
     addProc(scheduler->readyQueue, processNode);
 }
 
+//does not work, segfaults at memory allocation (even if malloc used instead)
 void scheduleProcess(sched* scheduler, proc* process)
 {
     scheduleNode* node = memallc(sizeof(scheduleNode));
@@ -60,7 +62,7 @@ void procSwitch(sched* scheduler)
     }
 
     scheduler->currentProc->process->proc_state = READY;
-    //reg_switch(scheduler->currentProc->proc_context, scheduler->readyQueue->next->process->proc_context);
+    //reg_switch(scheduler->currentProc->process->proc_context, scheduler->readyQueue->next->process->proc_context);
     procToReady(scheduler, scheduler->currentProc);
 
     scheduler->currentProc = dequeue(scheduler->readyQueue->next);

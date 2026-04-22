@@ -23,6 +23,12 @@ void schedulerInit(sched* scheduler);
 //add new process to queue
 void scheduleProcess(sched* scheduler, proc* process);
 
+//puts schedule node on the ready queue; included for testing until I can get scheduleProcess to stop segfaulting
+void procToReady(sched* scheduler, scheduleNode* processNode);
+
+//puts schedule node on the sleep queue; included for testing until I can get scheduleProcess to stop segfaulting
+void procToSleep(sched*scheduler, scheduleNode* processNode);
+
 //switch process
 void procSwitch(sched* scheduler);
 

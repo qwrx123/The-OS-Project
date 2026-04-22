@@ -66,9 +66,12 @@ TEST(timer_test, enable_timer)
 	init_timer();
 	enable_timer();
 	uint64_t ctl = get_timer_ctl();
+	disable_timer();
 	EXPECT_EQ(ctl & 5, 5);
 }
-
+/*
+    THIS TEST FAILS
+*/
 TEST(timer_test, disable_timer)
 {
 	uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);

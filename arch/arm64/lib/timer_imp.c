@@ -60,13 +60,16 @@ void init_timer_imp()
 void enable_timer_imp()
 {
 	uint64_t ctl = read_cntps_ctl_el1();
+    ctl |= 5u;
+    ctl &= ~2u;
 	write_cntps_ctl_el1(ctl ^ 5);
 }
 
 void disable_timer_imp()
 {
 	uint64_t ctl = read_cntps_ctl_el1();
-	write_cntps_ctl_el1(ctl ^ 4);
+	ctl &= ~5u; 
+	write_cntps_ctl_el1(ctl);
 }
 
 void timer_imp_interrupt()

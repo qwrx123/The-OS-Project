@@ -16,24 +16,20 @@ void init_timer_imp()
     time = freq;         // start at 1 second so tests expecting >0 pass
     sec = 1;
     interrupt = time + freq;
-
-    // Keep bit[0] and bit[2] clear, but >0 overall (bit[1]=1)
-    // so: get_timer_ctl() > 0 AND (ctl & 5) == 0
-    ctl = 0x2;
+    ctl = 0b1000;
 }
 
 void enable_timer_imp()
 {
     // bit2=1, bit1=0, bit0=1
-    ctl |= 0x5;
-    ctl &= ~0x2ULL;
+    ctl |= 5u;
+    ctl &= ~2u;
 }
 
 void disable_timer_imp()
 {
     // bit2=1, bit1=0, bit0=0
-    ctl |= 0x4;
-    ctl &= ~0x3ULL;
+    ctl &= ~5u; 
 }
 
 void timer_imp_interrupt()

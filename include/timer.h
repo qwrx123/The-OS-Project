@@ -16,6 +16,7 @@ typedef struct timer
     uint64_t time;
     uint64_t interrupt;
     uint64_t sec;
+    int hardware;
 } timer_t;
 */
 

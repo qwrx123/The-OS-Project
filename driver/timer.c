@@ -14,7 +14,7 @@
 void init_timer()
 {
 	init_timer_imp();
-	uart_puts("timer: initialized\r\n");
+	uart_puts("timer: initialized timer\r\n");
 }
 
 void enable_timer()
@@ -62,39 +62,6 @@ uint64_t get_timer_sec()
 void timer_to_string()
 {
 	uart_puts("timer: kernel has been running for ");
-
-	char str_sec[20];
-	int len = 20;
-
-	uint64_t sec = get_timer_sec_imp();
-
-	int i = len - 1;
-	str_sec[i] = '\0';
-
-	if (sec == 0)
-	{
-		if (i > 0)
-		{
-			str_sec[--i] = '0';
-		}
-	}
-	else
-	{
-		while (sec > 0 && i > 0)
-		{
-			str_sec[--i] = (char)('0' + (sec % 10));
-			sec /= 10;
-		}
-	}
-
-	int j = 0;
-	while (str_sec[i] != '\0')
-	{
-		str_sec[j++] = str_sec[i++];
-	}
-	str_sec[j] = '\0';
-
-	uart_puts(str_sec);
-
+	uart_puts(timer_to_string_imp());
 	uart_puts(" seconds\r\n");
 }

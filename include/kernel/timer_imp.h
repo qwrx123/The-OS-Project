@@ -52,4 +52,4 @@ uint64_t get_timer_sec_imp();
 /**
  * @brief Displays the time in seconds.
  */
-void timer_to_string_imp();
+char *timer_to_string_imp();

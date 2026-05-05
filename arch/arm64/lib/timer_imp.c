@@ -101,26 +101,36 @@ uint64_t get_timer_sec_imp()
 	return (time / freq);
 }
 
-void timer_to_string_imp()
+char *timer_to_string_imp()
 {
-	// uint64_t sec = (time / freq);
-	// TODO: Implement a more robust integer to string conversion function that can handle larger numbers and edge cases.
-	/*
-	uint64_t sec = (time / freq);
-	uint64_t temp = sec;
-	uint64_t length = 0;
-	while (temp > 0)
+	char str_sec[20];
+	int len = 20;
+	uint64_t sec = get_timer_sec_imp();
+	int i = len - 1;
+	str_sec[i] = '\0';
+
+	if (sec == 0)
 	{
-		length++;
-		temp /= 10;
+		if (i > 0)
+		{
+			str_sec[--i] = '0';
+		}
 	}
-	char* seconds[20];
-	for (uint64_t i = length - 1; i >= 0; i--)
+	else
 	{
-		seconds[i] = sec % 10 + '0';
-		sec /= 10;
+		while (sec > 0 && i > 0)
+		{
+			str_sec[--i] = (char)('0' + (sec % 10));
+			sec /= 10;
+		}
 	}
-	seconds[length] = '\0';
-	uart_puts(seconds);
-	*/
+
+	int j = 0;
+	while (str_sec[i] != '\0')
+	{
+		str_sec[j++] = str_sec[i++];
+	}
+	str_sec[j] = '\0';
+
+	return str_sec;
 }

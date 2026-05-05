@@ -103,7 +103,7 @@ uint64_t get_timer_sec_imp()
 
 char *timer_to_string_imp()
 {
-	char str_sec[20];
+	static char str_sec[20];
 	int len = 20;
 	uint64_t sec = get_timer_sec_imp();
 	int i = len - 1;

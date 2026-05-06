@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) 2026 Nathaniel Smith
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #include "mmu.h"
 #include "board_devices.h"
 #include "socfunctions.h"
 #include "kernel/string.h"
 #include "kernel/types.h"
 #include "kernel/stddef.h"
+
+#include "uart.h"
 
 /**
  * @brief Enables the mmu
@@ -306,14 +314,19 @@ void early_mmu_init()
 	uint64_t *page_tables_start = (uint64_t *)__page_tables_start;
 	uint64_t *page_tables_end = (uint64_t *)__page_tables_end;
 
+	uart_puts("MMU: Mapping kernel\r\n");
 	uint64_t *next_map = map_kernel(page_tables_start, page_tables_end);
 
+	uart_puts("MMU: Mapping devices\r\n");
 	map_devices(next_map, page_tables_end);
 
+	uart_puts("MMU: Writing table\r\n");
 	write_ttbr0_el1((uintptr_t)page_tables_start);
 
 	mmu_dsb_ish();
 	mmu_isb();
+
+	uart_puts("MMU: Enabling MMU\r\n");
 	enable_mmu();
 }
 

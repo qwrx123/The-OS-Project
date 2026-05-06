@@ -25,6 +25,9 @@ jobs:
       - name: ConfigureTests
         run: cmake -B build -DBUILD_TESTING=ON
 
+      - name: Check formatting (tests config)
+        run: cmake --build build --target format-check --parallel 4
+
       - name: Build Tests
         run: cmake --build build --config Release --parallel 4
 
@@ -36,6 +39,9 @@ jobs:
 
       - name: Configure Kernel
         run: cmake -B build 
+
+      - name: Check formatting (kernel config)
+        run: cmake --build build --target format-check --parallel 4
 
       - name: Build Kernel
         run: cmake --build build --config Release --parallel 4

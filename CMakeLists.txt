@@ -48,6 +48,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Add clang-format support
 find_program(CLANG_FORMAT clang-format)
 
+# Target CI formatting checks
+add_custom_target(format-check)
+
 if (NOT BUILD_TESTING)
 add_executable(kernel
   null.c)

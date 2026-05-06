@@ -66,13 +66,15 @@ class Scheduler : public ::testing::Test
 
 	virtual ~Scheduler()
 	{
-		while (testScheduler->readyQueue->next != testScheduler->readyQueue)
+		while (testScheduler->readyQueue->next !=
+		       testScheduler->readyQueue)
 		{
 			free(testScheduler->readyQueue->next->process);
 			free(dequeue(testScheduler->readyQueue->next));
 		}
 
-		while (testScheduler->sleepQueue->next != testScheduler->sleepQueue)
+		while (testScheduler->sleepQueue->next !=
+		       testScheduler->sleepQueue)
 		{
 			free(testScheduler->sleepQueue->next->process);
 			free(dequeue(testScheduler->sleepQueue->next));

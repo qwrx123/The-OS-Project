@@ -27,6 +27,8 @@ scheduleNode *dequeue(scheduleNode *targetProc)
 {
 	targetProc->next->prev = targetProc->prev;
 	targetProc->prev->next = targetProc->next;
+	targetProc->next = targetProc;
+	targetProc->prev = targetProc;
 
 	return targetProc;
 }

@@ -6,6 +6,7 @@
 
 #include "scheduler.h"
 #include "proc.h"
+#include "uart.h"
 #include "memallc.h"
 
 extern void reg_switch(context outgoing, context incoming);
@@ -21,16 +22,19 @@ void schedulerInit(sched *scheduler)
 	sleep->prev = sleep;
 	scheduler->readyQueue = ready;
 	scheduler->sleepQueue = sleep;
+	uart_puts("Scheduler initiallized");
 }
 
 void procToSleep(sched *scheduler, scheduleNode *processNode)
 {
 	addProc(scheduler->sleepQueue, processNode);
+	uart_puts("Process put on sleep queue");
 }
 
 void procToReady(sched *scheduler, scheduleNode *processNode)
 {
 	addProc(scheduler->readyQueue, processNode);
+	uart_puts("Process put on ready queue");
 }
 
 //does not work, segfaults at memory allocation (even if malloc used instead)
@@ -38,6 +42,7 @@ void scheduleProcess(sched *scheduler, proc *process)
 {
 	scheduleNode *node = memallc(sizeof(scheduleNode));
 	scheduleNodeInit(node, process);
+	uart_puts("Process given schedule node");
 
 	if (process->proc_state == READY)
 	{
@@ -51,6 +56,7 @@ void scheduleProcess(sched *scheduler, proc *process)
 	{
 		//for testing purposes. should probably make an actual "if empty make process run" thing
 		scheduler->currentProc = node;
+		uart_puts("Process running");
 	}
 }
 
@@ -71,6 +77,8 @@ void procSwitch(sched *scheduler)
 	procToReady(scheduler, scheduler->currentProc);
 
 	scheduler->currentProc = dequeue(scheduler->readyQueue->next);
+
+	uart_puts("Switched to next available process");
 }
 
 void killScheduler(sched *scheduler)
@@ -92,6 +100,8 @@ void killScheduler(sched *scheduler)
 	free_memallc(scheduler->currentProc->process);
 	free_memallc(scheduler->currentProc);
 	free_memallc(scheduler);
+
+	uart_puts("Scheduler killed, all related memory freed");
 }
 
 proc *getNextProcess(sched *scheduler)

@@ -66,7 +66,23 @@ class Scheduler : public ::testing::Test
 
 	virtual ~Scheduler()
 	{
-		killScheduler(testScheduler);
+		while (testScheduler->readyQueue->next != testScheduler->readyQueue)
+		{
+			free(testScheduler->readyQueue->next->process);
+			free(dequeue(testScheduler->readyQueue->next));
+		}
+
+		while (testScheduler->sleepQueue->next != testScheduler->sleepQueue)
+		{
+			free(testScheduler->sleepQueue->next->process);
+			free(dequeue(testScheduler->sleepQueue->next));
+		}
+
+		free(testScheduler->readyQueue);
+		free(testScheduler->sleepQueue);
+		free(testScheduler->currentProc->process);
+		free(testScheduler->currentProc);
+		free(testScheduler);
 	}
 
 	virtual void SetUp()
@@ -74,12 +90,8 @@ class Scheduler : public ::testing::Test
 		uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
 		init_memallc((void *)0x1000, 0x200000);
 
-		std::cout << "initiallize test scheduler" << std::endl;
-		std::cout << sizeof(sched) << std::endl;
 		testScheduler = new sched;
-		std::cout << "test" << std::endl;
 		*testScheduler = (sched){ 0, 0, 0 };
-		std::cout << "test2" << std::endl;
 
 		scheduleNode *ready = new scheduleNode;
 		scheduleNode *sleep = new scheduleNode;
@@ -89,8 +101,6 @@ class Scheduler : public ::testing::Test
 		sleep->prev = sleep;
 		testScheduler->readyQueue = ready;
 		testScheduler->sleepQueue = sleep;
-
-		std::cout << "got past schedulerInit" << std::endl;
 
 		context testContext0 = { 1000, 19, 20, 21, 22, 23, 24,
 					 25,   26, 27, 28, 29, 30 };
@@ -107,7 +117,6 @@ class Scheduler : public ::testing::Test
 		testProcessReady = new proc;
 		testProcessReady->proc_state = READY;
 		testProcessReady->proc_context = testContext1;
-		std::cout << "finished initiallization" << std::endl;
 	}
 
 	virtual void TearDown()
@@ -138,8 +147,6 @@ TEST_F(Scheduler, addProcessQueueLine)
 	scheduleNodeInit(node2, testProcessReady2);
 
 	procToReady(testScheduler, node2);
-	std::cout << getNextProcess(testScheduler) << std::endl;
-	std::cout << getLastProcess(testScheduler) << std::endl;
 	ASSERT_EQ(testProcessReady, getNextProcess(testScheduler));
 	ASSERT_EQ(testProcessReady2, getLastProcess(testScheduler));
 }

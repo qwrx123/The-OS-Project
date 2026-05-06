@@ -8,7 +8,7 @@ uint64_t interrupt = 0;
 uint64_t sec = 0;
 
 // Private mock register state
-static uint64_t ctl = 0;
+uint64_t ctl = 0;
 
 void init_timer_imp()
 {
@@ -59,9 +59,4 @@ uint64_t get_timer_sec_imp()
 {
     sec = time / freq;
     return sec;
-}
-
-void timer_to_string_imp()
-{
-    // no-op for host tests
 }

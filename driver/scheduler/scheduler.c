@@ -11,7 +11,6 @@
 
 extern void reg_switch(context outgoing, context incoming);
 
-//does not work, segfaults at memory allocation (even if malloc used instead)
 void schedulerInit(sched *scheduler)
 {
 	scheduleNode *ready = memallc(sizeof(scheduleNode));
@@ -22,27 +21,26 @@ void schedulerInit(sched *scheduler)
 	sleep->prev = sleep;
 	scheduler->readyQueue = ready;
 	scheduler->sleepQueue = sleep;
-	uart_puts("Scheduler initiallized");
+	uart_puts("scheduler: Scheduler initiallized\r\n");
 }
 
 void procToSleep(sched *scheduler, scheduleNode *processNode)
 {
 	addProc(scheduler->sleepQueue, processNode);
-	uart_puts("Process put on sleep queue");
+	uart_puts("scheduler: Process put on sleep queue.\r\n");
 }
 
 void procToReady(sched *scheduler, scheduleNode *processNode)
 {
 	addProc(scheduler->readyQueue, processNode);
-	uart_puts("Process put on ready queue");
+	uart_puts("scheduler: Process put on ready queue.\r\n");
 }
 
-//does not work, segfaults at memory allocation (even if malloc used instead)
 void scheduleProcess(sched *scheduler, proc *process)
 {
 	scheduleNode *node = memallc(sizeof(scheduleNode));
 	scheduleNodeInit(node, process);
-	uart_puts("Process given schedule node");
+	uart_puts("scheduler: Process given schedule node.\r\n");
 
 	if (process->proc_state == READY)
 	{
@@ -56,7 +54,7 @@ void scheduleProcess(sched *scheduler, proc *process)
 	{
 		//for testing purposes. should probably make an actual "if empty make process run" thing
 		scheduler->currentProc = node;
-		uart_puts("Process running");
+		uart_puts("scheduler: Process running.\r\n");
 	}
 }
 
@@ -69,16 +67,16 @@ void procSwitch(sched *scheduler)
 
 	scheduler->currentProc->process->proc_state = READY;
 
-#ifndef TESTING
-	reg_switch(scheduler->currentProc->process->proc_context,
-		   scheduler->readyQueue->next->process->proc_context);
+#ifndef TESTING //new issue: linker can't find definition when building for hardware
+	//reg_switch(scheduler->currentProc->process->proc_context,
+	//	   scheduler->readyQueue->next->process->proc_context);
 #endif
 
 	procToReady(scheduler, scheduler->currentProc);
 
 	scheduler->currentProc = dequeue(scheduler->readyQueue->next);
 
-	uart_puts("Switched to next available process");
+	uart_puts("scheduler: Switched to next available process\r\n");
 }
 
 void killScheduler(sched *scheduler)
@@ -101,7 +99,7 @@ void killScheduler(sched *scheduler)
 	free_memallc(scheduler->currentProc);
 	free_memallc(scheduler);
 
-	uart_puts("Scheduler killed, all related memory freed");
+	uart_puts("scheduler: Scheduler killed, all related memory freed.\r\n");
 }
 
 proc *getNextProcess(sched *scheduler)

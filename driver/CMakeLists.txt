@@ -8,6 +8,7 @@ add_library(
     STATIC
     uart.c
     memallc.c
+    $<TARGET_OBJECTS:scheduler>
 )
 
 registerFilesToFormat(FILES uart.c memallc.c)

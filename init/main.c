@@ -6,6 +6,8 @@
 
 #include "uart.h"
 #include "memallc.h"
+#include "scheduler.h"
+#include "proc.h"
 
 int kernel_init(void *name)
 {

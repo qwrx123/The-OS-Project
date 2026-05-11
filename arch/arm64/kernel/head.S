@@ -8,6 +8,7 @@
 
 _start:
 	//set stack
+	msr SPSel, #1
 	ldr x0, =_stack_top
     mov sp, x0
 	//clear bss (needed for c)
@@ -24,6 +25,15 @@ _start:
 	bl early_mmu_init
 	ldr x0, =initializedMMU
 	bl uart_puts
+	//Initalize the Exception Vector Table
+	ldr x0, =vector_table
+    msr VBAR_EL1, x0
+    isb
+
+	ldr x0, =aboutToBreak
+	bl uart_puts
+	brk #0
+	
 	bl kernel_init
 	ldr x0, =initializedKernel
 	bl uart_puts
@@ -33,3 +43,4 @@ _start:
 	clearBSS: .ascii "ASM: Cleared BSS\r\n\0"
 	initializedMMU: .ascii "ASM: initialized Memory Management Unit\r\n\0"
 	initializedKernel: .ascii "ASM: initialized Kernel\r\n\0"
+	 aboutToBreak: .ascii "ASM: About to trigger brk\r\n\0"

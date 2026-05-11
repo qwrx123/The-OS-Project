@@ -5,33 +5,45 @@
  */
 
 .global vector_table
-.balign 2048
+.balign 0x800
 vector_table:
     // Current EL, SP_EL0
     b sync_entry
+    .balign 0x80
     b irq_entry
+    .balign 0x80
     b .
+    .balign 0x80
     b .
+    .balign 0x80
 
     // Current EL, SP_ELx
-    .balign 0x80
     b sync_entry
+    .balign 0x80
     b irq_entry
+    .balign 0x80
     b .
+    .balign 0x80
     b .
+    .balign 0x80
 
     // Lower EL, AArch64
-    .balign 0x80
     b sync_entry
+    .balign 0x80
     b irq_entry
+    .balign 0x80
     b .
+    .balign 0x80
     b .
+    .balign 0x80
 
     // Lower EL, AArch32
-    .balign 0x80
     b sync_entry
+    .balign 0x80
     b irq_entry
+    .balign 0x80
     b .
+    .balign 0x80
     b .
 
 sync_entry:
@@ -53,7 +65,7 @@ sync_entry:
     stp x0, x1, [sp, #176]
 
     mov x0, sp
-    bl exception
+    bl el1_sync_handler
 
     ldp x0, x1, [sp, #0]
     ldp x2, x3, [sp, #16]
@@ -84,7 +96,7 @@ irq_entry:
     stp x30, xzr, [sp, #160]
 
     mov x0, sp
-    bl irq_handler
+    //bl el1_irq_handler
 
     ldp x0, x1, [sp, #0]
     ldp x2, x3, [sp, #16]

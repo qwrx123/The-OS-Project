@@ -7,6 +7,9 @@ add_library(
     arch_kernel
     STATIC
     head.S
+    entry.S
+    #irq.c
+    traps.c
 )
 
 target_compile_options(arch_kernel PRIVATE

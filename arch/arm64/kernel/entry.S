@@ -47,7 +47,7 @@ vector_table:
     b .
 
 sync_entry:
-    sub sp, sp, #192
+    sub sp, sp, #272
     stp x0, x1, [sp, #0]
     stp x2, x3, [sp, #16]
     stp x4, x5, [sp, #32]
@@ -57,15 +57,26 @@ sync_entry:
     stp x12, x13, [sp, #96]
     stp x14, x15, [sp, #112]
     stp x16, x17, [sp, #128]
-    stp x18, x29, [sp, #144]
-    stp x30, xzr, [sp, #160]
+    stp x18, x19, [sp, #144]
+    stp x20, x21, [sp, #160]
+    stp x22, x23, [sp, #176]
+    stp x24, x25, [sp, #192]
+    stp x26, x27, [sp, #208]
+    stp x28, x29, [sp, #224]
+    str x30, [sp, #240]
 
     mrs x0, ESR_EL1
-    mrs x1, FAR_EL1
-    stp x0, x1, [sp, #176]
+    str x0, [sp, #248]
+    mrs x0, FAR_EL1
+    str x0, [sp, #256]
+    mrs x0, ELR_EL1
+    str x0, [sp, #264]
 
     mov x0, sp
     bl el1_sync_handler
+
+    ldr x0, [sp, #264]
+    msr ELR_EL1, x0
 
     ldp x0, x1, [sp, #0]
     ldp x2, x3, [sp, #16]
@@ -76,13 +87,18 @@ sync_entry:
     ldp x12, x13, [sp, #96]
     ldp x14, x15, [sp, #112]
     ldp x16, x17, [sp, #128]
-    ldp x18, x29, [sp, #144]
-    ldp x30, xzr, [sp, #160]
-    add sp, sp, #192
+    ldp x18, x19, [sp, #144]
+    ldp x20, x21, [sp, #160]
+    ldp x22, x23, [sp, #176]
+    ldp x24, x25, [sp, #192]
+    ldp x26, x27, [sp, #208]
+    ldp x28, x29, [sp, #224]
+    ldr x30, [sp, #240]
+    add sp, sp, #272
     eret
 
 irq_entry:
-    sub sp, sp, #192
+    sub sp, sp, #272
     stp x0, x1, [sp, #0]
     stp x2, x3, [sp, #16]
     stp x4, x5, [sp, #32]
@@ -92,8 +108,13 @@ irq_entry:
     stp x12, x13, [sp, #96]
     stp x14, x15, [sp, #112]
     stp x16, x17, [sp, #128]
-    stp x18, x29, [sp, #144]
-    stp x30, xzr, [sp, #160]
+    stp x18, x19, [sp, #144]
+    stp x20, x21, [sp, #160]
+    stp x22, x23, [sp, #176]
+    stp x24, x25, [sp, #192]
+    stp x26, x27, [sp, #208]
+    stp x28, x29, [sp, #224]
+    str x30, [sp, #240]
 
     mov x0, sp
     //bl el1_irq_handler
@@ -107,7 +128,12 @@ irq_entry:
     ldp x12, x13, [sp, #96]
     ldp x14, x15, [sp, #112]
     ldp x16, x17, [sp, #128]
-    ldp x18, x29, [sp, #144]
-    ldp x30, xzr, [sp, #160]
-    add sp, sp, #192
+    ldp x18, x19, [sp, #144]
+    ldp x20, x21, [sp, #160]
+    ldp x22, x23, [sp, #176]
+    ldp x24, x25, [sp, #192]
+    ldp x26, x27, [sp, #208]
+    ldp x28, x29, [sp, #224]
+    ldr x30, [sp, #240]
+    add sp, sp, #272
     eret

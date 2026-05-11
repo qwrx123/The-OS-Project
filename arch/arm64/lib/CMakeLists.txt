@@ -10,7 +10,7 @@ add_library(
     timer_imp.c
 )
 
-registerFilesToFormat(FILES memset.c)
+registerFilesToFormat(FILES memset.c timer_imp.c)
 
 target_compile_options(arch_lib PRIVATE
   -nostdlib 

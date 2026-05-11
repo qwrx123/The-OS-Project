@@ -10,6 +10,11 @@
 #include "kernel/stdint.h"
 #include "kernel/types.h"
 
+uint64_t freq = 0;
+uint64_t time = 0;
+uint64_t interrupt = 0;
+uint64_t sec = 0;
+
 static inline uint64_t read_cntfrq_el0(void)
 {
 	uint64_t v;
@@ -48,7 +53,6 @@ static inline void write_cntps_cval_el1(uint64_t v)
 	__asm__ volatile("msr cntps_cval_el1, %0" ::"r"(v));
 }
 
-
 void init_timer_imp()
 {
 	freq = read_cntfrq_el0();
@@ -60,15 +64,15 @@ void init_timer_imp()
 void enable_timer_imp()
 {
 	uint64_t ctl = read_cntps_ctl_el1();
-    ctl |= 5u;
-    ctl &= ~2u;
+	ctl |= 5u;
+	ctl &= ~2u;
 	write_cntps_ctl_el1(ctl ^ 5);
 }
 
 void disable_timer_imp()
 {
 	uint64_t ctl = read_cntps_ctl_el1();
-	ctl &= ~5u; 
+	ctl &= ~5u;
 	write_cntps_ctl_el1(ctl);
 }
 

@@ -78,10 +78,12 @@ endif()
 if (BUILD_TESTING)
   return()
 endif()
+
 target_link_libraries(kernel
   arch_aarch64
   init
-  driver)
+  driver
+)
   
 set_target_properties(kernel PROPERTIES OUTPUT_NAME kernel SUFFIX .elf)
 

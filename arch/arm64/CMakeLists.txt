@@ -14,6 +14,8 @@ add_library(
     $<TARGET_OBJECTS:arch_lib>
 )
 
+target_link_libraries(arch_aarch64 PRIVATE arch_lib)
+
 target_compile_options(arch_aarch64 PRIVATE
   -nostdlib 
   -ffreestanding

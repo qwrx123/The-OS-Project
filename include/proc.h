@@ -40,6 +40,7 @@ typedef struct proc
 {
 	state proc_state;
 	context proc_context;
+	int proc_ID;
 } proc;
 
 #endif

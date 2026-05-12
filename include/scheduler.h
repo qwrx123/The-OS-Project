@@ -91,4 +91,19 @@ proc *getLastSleepProcess(sched *scheduler);
  */
 proc *getRunningProcess(sched *scheduler);
 
+//functions below will mirror functions above, but for a static scheduler,
+//no dynamic memory allocation needed
+
+void schedulerInit_static();
+void scheduleProcess_static(proc process);
+void procSwitch_static();
+void procAwaken_static();
+void killProcess_static();
+
+proc getNextProcess_s();
+proc getLastProcess_s();
+proc getNextSleepProcess_s();
+proc getLastSleepProcess_s();
+proc getRunningProcess_s();
+
 #endif

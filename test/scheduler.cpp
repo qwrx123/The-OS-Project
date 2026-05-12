@@ -57,6 +57,9 @@ proc *testProcessRun;
 proc *testProcessReady;
 proc *testProcessReady2;
 
+proc testProc_s1;
+proc testProc_s2;
+
 class Scheduler : public ::testing::Test
 {
     protected:
@@ -109,6 +112,7 @@ class Scheduler : public ::testing::Test
 		testProcessRun = new proc;
 		testProcessRun->proc_state = RUNNING;
 		testProcessRun->proc_context = testContext0;
+		testProcessRun->proc_ID = 1;
 
 		scheduleNode *runningNode = new scheduleNode;
 		scheduleNodeInit(runningNode, testProcessRun);
@@ -119,6 +123,17 @@ class Scheduler : public ::testing::Test
 		testProcessReady = new proc;
 		testProcessReady->proc_state = READY;
 		testProcessReady->proc_context = testContext1;
+		testProcessReady->proc_ID = 2;
+
+		//start static-specific initiallization
+		schedulerInit_static();
+		context testContext_s1 = { 1000, 19, 20, 21, 22, 23, 24,
+					   25,	 26, 27, 28, 29, 30 };
+		testProc_s1 = { READY, testContext_s1, 1 };
+
+		context testContext_s2 = { 2000, 1, 2, 3,  4,  5, 6,
+					   7,	 8, 9, 10, 11, 12 };
+		testProc_s2 = { READY, testContext_s2, 2 };
 	}
 
 	virtual void TearDown()
@@ -171,4 +186,37 @@ TEST_F(Scheduler, sleepProcess)
 
 	procToSleep(testScheduler, node);
 	ASSERT_EQ(testProcessReady, getNextSleepProcess(testScheduler));
+}
+
+TEST_F(Scheduler, addProcessEmptyQueue_static)
+{
+	scheduleProcess_static(testProc_s1);
+	ASSERT_EQ(testProc_s1.proc_ID, getLastProcess_s().proc_ID);
+}
+
+TEST_F(Scheduler, addProcessQueueLine_static)
+{
+	scheduleProcess_static(testProc_s1);
+	scheduleProcess_static(testProc_s2);
+	ASSERT_EQ(testProc_s1.proc_ID, getNextProcess_s().proc_ID);
+	ASSERT_EQ(testProc_s2.proc_ID, getLastProcess_s().proc_ID);
+}
+
+TEST_F(Scheduler, switchProcess_static)
+{
+	scheduleProcess_static(testProc_s1);
+	procSwitch_static();
+	ASSERT_EQ(testProc_s1.proc_ID, getRunningProcess_s().proc_ID);
+
+	scheduleProcess_static(testProc_s2);
+	procSwitch_static();
+	ASSERT_EQ(testProc_s2.proc_ID, getRunningProcess_s().proc_ID);
+	ASSERT_EQ(testProc_s1.proc_ID, getLastProcess_s().proc_ID);
+}
+
+TEST_F(Scheduler, sleepProcess_static)
+{
+	testProc_s1.proc_state = SLEEPING;
+	scheduleProcess_static(testProc_s1);
+	ASSERT_EQ(testProc_s1.proc_ID, getLastSleepProcess_s().proc_ID);
 }

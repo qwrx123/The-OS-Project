@@ -41,7 +41,7 @@ void el1_sync_handler(struct pt_regs *regs)
 
     uart_puts("el1_sync: ");
     uart_puts(exception_class_name(regs->esr));
-    uart_puts("\n");
+    uart_puts("\r\n");
 
     if (ec == 0x3c) {
         // Needed to pass brk instruction

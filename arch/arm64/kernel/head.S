@@ -7,8 +7,18 @@
 .global _start
 
 _start:
+    mov x0, #(1 << 31)   // HCR_EL2.RW = 1, EL1 is AArch64
+    msr HCR_EL2, x0
+    mov x0, #0x3c5       // SPSR_EL2 = EL1h, DAIF masked
+    msr SPSR_EL2, x0
+    ldr x0, =el1_start
+    msr ELR_EL2, x0
+    eret
+
+el1_start:
+
 	//set stack
-	msr SPSel, #1
+	//msr SPSel, #1
 	ldr x0, =_stack_top
     mov sp, x0
 	//clear bss (needed for c)

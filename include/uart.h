@@ -89,6 +89,11 @@ typedef union
 #define UARTPL011FLAGFULL (1u << 5)
 #define UART16550FLAGFULL (1u << 5)
 
+//Stuff for interrupts
+#define PL011_RXIM (1u << 4)
+#define PL011_ICR_CLEAR 0x7ff
+#define NS16550_IER_RDA (1u << 0)
+
 /**
  * @brief Initialize UART with specific hardware address (or NULL for default).
  * 

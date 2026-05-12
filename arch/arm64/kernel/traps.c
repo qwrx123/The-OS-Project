@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2026 Nathaniel Smith
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #include <stdint.h>
 
 extern void uart_puts(const char *s);

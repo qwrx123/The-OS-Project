@@ -8,7 +8,7 @@ add_library(
     STATIC
     head.S
     entry.S
-    #irq.c
+    irq.c
     traps.c
 )
 

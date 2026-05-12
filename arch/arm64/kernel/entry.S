@@ -116,8 +116,18 @@ irq_entry:
     stp x28, x29, [sp, #224]
     str x30, [sp, #240]
 
+    mrs x0, ESR_EL1
+    str x0, [sp, #248]
+    mrs x0, FAR_EL1
+    str x0, [sp, #256]
+    mrs x0, ELR_EL1
+    str x0, [sp, #264]
+
     mov x0, sp
-    //bl el1_irq_handler
+    bl el1_irq_handler
+
+    ldr x0, [sp, #264]
+    msr ELR_EL1, x0
 
     ldp x0, x1, [sp, #0]
     ldp x2, x3, [sp, #16]

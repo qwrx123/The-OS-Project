@@ -30,6 +30,8 @@ _start:
     msr VBAR_EL1, x0
     isb
 
+	msr daifclr, #2
+
 	ldr x0, =aboutToBreak
 	bl uart_puts
 	brk #0

@@ -205,10 +205,10 @@ TEST_F(Scheduler, addProcessQueueLine_static)
 TEST_F(Scheduler, switchProcess_static)
 {
 	scheduleProcess_static(testProc_s1);
+	scheduleProcess_static(testProc_s2);
 	procSwitch_static();
 	ASSERT_EQ(testProc_s1.proc_ID, getRunningProcess_s().proc_ID);
 
-	scheduleProcess_static(testProc_s2);
 	procSwitch_static();
 	ASSERT_EQ(testProc_s2.proc_ID, getRunningProcess_s().proc_ID);
 	ASSERT_EQ(testProc_s1.proc_ID, getLastProcess_s().proc_ID);

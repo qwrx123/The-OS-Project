@@ -2,6 +2,13 @@
 
 extern void uart_puts(const char *s);
 
+struct pt_regs {
+    uint64_t x[31];
+    uint64_t esr;
+    uint64_t far;
+    uint64_t elr;
+};
+
 static const char *exception_class_name(uint64_t esr)
 {
     uint64_t ec = (esr >> 26) & 0x3f;
@@ -22,8 +29,17 @@ static const char *exception_class_name(uint64_t esr)
     }
 }
 
-void el1_sync_handler()
+void el1_sync_handler(struct pt_regs *regs)
 {
-    uart_puts("el1_sync\n");
+    uint64_t ec = (regs->esr >> 26) & 0x3f;
+
+    uart_puts("el1_sync: ");
+    uart_puts(exception_class_name(regs->esr));
+    uart_puts("\n");
+
+    if (ec == 0x3c) {
+        // Needed to pass brk instruction
+        regs->elr += 4;
+    }
 }
 

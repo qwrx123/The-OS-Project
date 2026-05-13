@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#ifndef SOCFUNCTIONS_H
-#define SOCFUNCTIONS_H
+#ifndef SOCFUNCTIONSMMU_H
+#define SOCFUNCTIONSMMU_H
 
 /**
  * @file socfunctions.h

@@ -42,8 +42,8 @@ void uart_init(uart_regs_t *uart_device, uart_type init_type)
 	default:
 #endif
 	case id_16550:
-		//UART->id_16550.IER |= NS16550_IER_RDA;
-		//UART->id_16550.IIR_FCR = 0x01;
+		UART->id_16550.IER |= NS16550_IER_RDA;
+		UART->id_16550.IIR_FCR = 0x01;
 		uart_putc_impl = &uart_putc_16550;
 		uart_puts_impl = &uart_puts_16550;
 		break;
@@ -52,8 +52,8 @@ void uart_init(uart_regs_t *uart_device, uart_type init_type)
 	case id_default:
 	default:
 #endif
-		//UART->id_pl011.ICR = PL011_ICR_CLEAR;
-		//UART->id_pl011.IMSC |= PL011_RXIM;
+		UART->id_pl011.ICR = PL011_ICR_CLEAR;
+		UART->id_pl011.IMSC |= PL011_RXIM;
 		uart_putc_impl = &uart_putc_pl011;
 		uart_puts_impl = &uart_puts_pl011;
 		break;

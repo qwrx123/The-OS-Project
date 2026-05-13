@@ -16,12 +16,12 @@
 
 #define GICR_WAKER (*(volatile uint32_t *)(GICR_BASE_PHYS + 0x0014))
 
-static inline void gic_isb(void)
+static inline void gic_isb()
 {
 	__asm__ volatile("isb" ::: "memory");
 }
 
-void gic_init(void)
+void gic_init()
 {
 	uint32_t waker_val;
 

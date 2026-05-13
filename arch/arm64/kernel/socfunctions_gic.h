@@ -25,7 +25,7 @@ static inline void write_icc_igrpen1_el1(uint64_t v)
 	__asm__ volatile("msr ICC_IGRPEN1_EL1, %0" ::"r"(v) : "memory");
 }
 
-static inline uint64_t read_icc_iar1_el1(void)
+static inline uint64_t read_icc_iar1_el1()
 {
 	uint64_t val;
 	__asm__ volatile("mrs %0, ICC_IAR1_EL1" : "=r"(val) : : "memory");

@@ -16,10 +16,10 @@
 #define GICR_BASE_PHYS 0x01880000ULL
 #endif
 
-void gic_init(void);
+void gic_init();
 void gic_enable_irq(uint32_t irq);
 void gic_disable_irq(uint32_t irq);
-uint32_t gic_get_active_irq(void);
+uint32_t gic_get_active_irq();
 void gic_eoi(uint32_t irq);
 
 #endif

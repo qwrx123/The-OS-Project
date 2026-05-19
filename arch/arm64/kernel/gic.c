@@ -16,8 +16,6 @@
 
 #define GICD_IPRIORITYR_BYTE(n) \
 	(*(volatile uint8_t *)(GICD_BASE_PHYS + 0x400 + (n)))
-#define GICD_ITARGETSR_BYTE(n) \
-	(*(volatile uint8_t *)(GICD_BASE_PHYS + 0x800 + (n)))
 
 #define GICD_IROUTER(n) \
 	(*(volatile uint64_t *)(GICD_BASE_PHYS + 0x6000 + ((n) * 8)))
@@ -26,14 +24,6 @@
 	(*(volatile uint32_t *)(GICD_BASE_PHYS + 0x080 + ((n) * 4)))
 
 #define GICR_WAKER (*(volatile uint32_t *)(GICR_BASE_PHYS + 0x0014))
-
-static inline void gic_isb()
-{
-	__asm__ volatile("isb" ::: "memory");
-}
-
-#define GICD_IROUTER(n) \
-	(*(volatile uint64_t *)(GICD_BASE_PHYS + 0x6000 + ((n) * 8)))
 
 void gic_init()
 {
@@ -44,27 +34,18 @@ void gic_init()
 
 	write_icc_pmr_el1(0xFFUL);
 
-	// Enable Group 1 interrupts at CPU interface
 	write_icc_igrpen1_el1(1UL);
 	gic_isb();
 
 	waker_val = GICR_WAKER;
-	waker_val &= ~(1u << 1); // clear ProcessorSleep
+	waker_val &= ~(1u << 1); 
 	GICR_WAKER = waker_val;
 	while (GICR_WAKER & (1u << 2))
 	{
 	}
 
-	// Enable Group 1 Non-secure (bit1) and Group 0 (bit0) in Distributor
 	GICD_CTLR = (1u << 1) | (1u << 0);
 	gic_isb();
-}
-
-static inline uint64_t mpidr_affinity(void)
-{
-	uint64_t mpidr;
-	asm volatile("mrs %0, mpidr_el1" : "=r"(mpidr));
-	return mpidr & 0x00FFFFFF00FFFFFFULL;
 }
 
 void gic_enable_irq(uint32_t irq)
@@ -72,12 +53,10 @@ void gic_enable_irq(uint32_t irq)
 	uint32_t reg = irq / 32;
 	uint32_t bit = 1u << (irq % 32);
 
-	/* mark SPI as Group 1 non-secure */
 	if (irq >= 32)
 	{
 		GICD_IGROUPR(irq / 32) |= bit;
 		GICD_IROUTER(irq) = mpidr_affinity();
-		// Set a sane priority (lower value = higher priority)
 		GICD_IPRIORITYR_BYTE(irq) = 0x80;
 	}
 

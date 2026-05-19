@@ -37,4 +37,16 @@ static inline void write_icc_eoir1_el1(uint64_t v)
 	__asm__ volatile("msr ICC_EOIR1_EL1, %0" ::"r"(v) : "memory");
 }
 
+static inline void gic_isb(void)
+{
+	__asm__ volatile("isb" ::: "memory");
+}
+
+static inline uint64_t mpidr_affinity(void)
+{
+	uint64_t mpidr;
+	__asm__ volatile("mrs %0, mpidr_el1" : "=r"(mpidr));
+	return mpidr & 0x00FFFFFF00FFFFFFULL;
+}
+
 #endif /* SOCFUNCTIONS_GIC_H */

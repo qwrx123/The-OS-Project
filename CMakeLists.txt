@@ -96,7 +96,9 @@ add_custom_target(kernel_bin ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/kernel.bin)
 
 add_custom_target(run
   DEPENDS kernel_bin
-  COMMAND qemu-system-aarch64 -M virt -cpu cortex-a57 -m 2G -nographic -M virt,virtualization=on
-          -machine virt,gic-version=3 -device loader,file=${CMAKE_CURRENT_BINARY_DIR}/kernel.bin,addr=0x82000000,cpu-num=0
+  COMMAND qemu-system-aarch64 -M virt -cpu cortex-a57 -m 2G
+          -machine virt,gic-version=3,virtualization=on
+          -device loader,file=${CMAKE_CURRENT_BINARY_DIR}/kernel.bin,addr=0x82000000,cpu-num=0
+          -display none -monitor none -serial stdio
   USES_TERMINAL
 )

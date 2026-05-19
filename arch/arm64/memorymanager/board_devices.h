@@ -20,8 +20,8 @@
 #define UART0_BASE_PHYS 0x09000000ULL
 #define UART0_SIZE 0x1000ULL
 #else
-#define UART0_BASE_PHYS 0x2860000ULL
-#define UART0_SIZE 0x20ULL
+#define UART0_BASE_PHYS 0x02860000ULL
+#define UART0_SIZE 0x1000ULL
 #endif
 /**
  * @brief This struct is used to define a device region of memory

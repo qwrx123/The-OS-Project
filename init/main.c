@@ -6,16 +6,13 @@
 
 #include "uart.h"
 #include "memallc.h"
-#include "../arch/arm64/kernel/gic.h"
 
 int kernel_init(void *name)
 {
 #ifdef QEMU
 	uart_init(0, id_pl011);
-	gic_enable_irq(33); // QEMU virt PL011
 #else
 	uart_init(0, id_16550);
-	gic_enable_irq(216); // Beagle UART from DT
 #endif
 	init_memallc((void *)0x400000, 0x200000);
 	if (name)

@@ -46,6 +46,9 @@ void gic_init()
 
 	GICD_CTLR = (1u << 1) | (1u << 0);
 	gic_isb();
+
+	//enable irqs we need
+	gic_enable_irq(UART_IRQ);
 }
 
 void gic_enable_irq(uint32_t irq)

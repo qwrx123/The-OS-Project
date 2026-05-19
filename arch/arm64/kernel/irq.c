@@ -14,6 +14,7 @@ void el1_irq_handler(/*struct pt_regs *regs*/)
 	uint32_t irq = gic_get_active_irq();
 	uint32_t translate_irq = irq;
 	char readable_irq[13] = { 0 };
+	//this is definitely a function
 	while (translate_irq != 0)
 	{
 		uint8_t single_digit = (translate_irq % 10) + '0';

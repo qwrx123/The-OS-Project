@@ -38,7 +38,7 @@ void gic_init()
 	gic_isb();
 
 	waker_val = GICR_WAKER;
-	waker_val &= ~(1u << 1); 
+	waker_val &= ~(1u << 1);
 	GICR_WAKER = waker_val;
 	while (GICR_WAKER & (1u << 2))
 	{

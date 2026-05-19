@@ -6,6 +6,7 @@
 
 #include <kernel/stdint.h>
 #include "gic.h"
+#include "uart.h"
 
 extern void uart_puts(const char *s);
 
@@ -35,5 +36,13 @@ void el1_irq_handler(/*struct pt_regs *regs*/)
 	uart_puts("el1_irq number ");
 	uart_puts(readable_irq);
 	uart_puts("\r\n");
+
+	if (irq == UART_IRQ)
+	{
+		char grabbed_key = uart_getc();
+		uart_puts("Key pressed is :");
+		uart_putc(grabbed_key);
+		uart_puts("\r\n");
+	}
 	gic_eoi(irq);
 }

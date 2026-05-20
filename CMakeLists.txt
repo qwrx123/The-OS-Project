@@ -71,6 +71,7 @@ endif()
 add_subdirectory(init)
 add_subdirectory(driver)
 add_subdirectory(include)
+add_subdirectory(lib)
 if (BUILD_TESTING)
 	add_subdirectory(test)
 endif()
@@ -81,7 +82,8 @@ endif()
 target_link_libraries(kernel
   arch_aarch64
   init
-  driver)
+  driver
+  lib)
   
 set_target_properties(kernel PROPERTIES OUTPUT_NAME kernel SUFFIX .elf)
 

@@ -21,7 +21,7 @@ void el1_irq_handler(/*struct pt_regs *regs*/)
 		uint8_t single_digit = (translate_irq % 10) + '0';
 		translate_irq /= 10;
 		int i;
-		for (i = 0; i < 13 && readable_irq[i] != '0'; i++)
+		for (i = 0; i < 13 && readable_irq[i] != '\0'; i++)
 		{
 			char temp_char = readable_irq[i];
 			readable_irq[i] = single_digit;
@@ -31,7 +31,7 @@ void el1_irq_handler(/*struct pt_regs *regs*/)
 		{
 			readable_irq[i] = single_digit;
 		}
-		readable_irq[12] = '0';
+		readable_irq[12] = '\0';
 	}
 	uart_puts("el1_irq number ");
 	uart_puts(readable_irq);

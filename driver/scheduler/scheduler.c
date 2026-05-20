@@ -35,13 +35,13 @@ void schedulerInit(sched *scheduler)
 
 void procToSleep(sched *scheduler, scheduleNode *processNode)
 {
-	addProc(scheduler->sleepQueue, processNode);
+	queueProc(scheduler->sleepQueue, processNode);
 	uart_puts("scheduler: Process put on sleep queue.\r\n");
 }
 
 void procToReady(sched *scheduler, scheduleNode *processNode)
 {
-	addProc(scheduler->readyQueue, processNode);
+	queueProc(scheduler->readyQueue, processNode);
 	uart_puts("scheduler: Process put on ready queue.\r\n");
 }
 
@@ -83,7 +83,7 @@ void procSwitch(sched *scheduler)
 
 	procToReady(scheduler, scheduler->currentProc);
 
-	scheduler->currentProc = dequeue(scheduler->readyQueue->next);
+	scheduler->currentProc = dequeueProc(scheduler->readyQueue->next);
 
 	uart_puts("scheduler: Switched to next available process\r\n");
 }
@@ -93,13 +93,13 @@ void killScheduler(sched *scheduler)
 	while (scheduler->readyQueue->next != scheduler->readyQueue)
 	{
 		free_memallc(scheduler->readyQueue->next->process);
-		free_memallc(dequeue(scheduler->readyQueue->next));
+		free_memallc(dequeueProc(scheduler->readyQueue->next));
 	}
 
 	while (scheduler->sleepQueue->next != scheduler->sleepQueue)
 	{
 		free_memallc(scheduler->sleepQueue->next->process);
-		free_memallc(dequeue(scheduler->sleepQueue->next));
+		free_memallc(dequeueProc(scheduler->sleepQueue->next));
 	}
 
 	free_memallc(scheduler->readyQueue);
@@ -109,6 +109,35 @@ void killScheduler(sched *scheduler)
 	free_memallc(scheduler);
 
 	uart_puts("scheduler: Scheduler killed, all related memory freed.\r\n");
+}
+
+void scheduleNodeInit(scheduleNode *node, proc *process)
+{
+	node->process = process;
+	node->next = node;
+	node->prev = node;
+}
+
+//for schedulenodes
+void queueProc(scheduleNode *head, scheduleNode *newNode)
+{
+	newNode->next = head;
+	newNode->prev =
+		head->prev; //head->prev is equal to head when head is "empty"
+	head->prev->next =
+		newNode; //head->prev->next is equal to head->next when head is "empty"
+	head->prev = newNode;
+}
+
+//for schedulenodes
+scheduleNode *dequeueProc(scheduleNode *targetProc)
+{
+	targetProc->next->prev = targetProc->prev;
+	targetProc->prev->next = targetProc->next;
+	targetProc->next = targetProc;
+	targetProc->prev = targetProc;
+
+	return targetProc;
 }
 
 proc *getNextProcess(sched *scheduler)

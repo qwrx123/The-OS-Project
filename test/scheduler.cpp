@@ -73,14 +73,14 @@ class Scheduler : public ::testing::Test
 		       testScheduler->readyQueue)
 		{
 			free(testScheduler->readyQueue->next->process);
-			free(dequeue(testScheduler->readyQueue->next));
+			free(dequeueProc(testScheduler->readyQueue->next));
 		}
 
 		while (testScheduler->sleepQueue->next !=
 		       testScheduler->sleepQueue)
 		{
 			free(testScheduler->sleepQueue->next->process);
-			free(dequeue(testScheduler->sleepQueue->next));
+			free(dequeueProc(testScheduler->sleepQueue->next));
 		}
 
 		free(testScheduler->readyQueue);

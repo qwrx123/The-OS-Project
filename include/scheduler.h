@@ -8,7 +8,13 @@
 #define SCHEDULER_H
 
 #include "proc.h"
-#include "../driver/scheduler/scheduleNode.h"
+
+typedef struct scheduleNode
+{
+	proc *process;
+	struct scheduleNode *next;
+	struct scheduleNode *prev;
+} scheduleNode;
 
 typedef struct sched
 {
@@ -55,6 +61,27 @@ void procSwitch(sched *scheduler);
  * @param scheduler Pointer to the sched struct
  */
 void killScheduler(sched *scheduler);
+
+/**
+ * @brief Initiallize the schedule node
+ * @param node Pointer to the scheduleNode struct
+ * @param process Pointer to the process to be attached to the schedule node
+ */
+void scheduleNodeInit(scheduleNode *node, proc *process);
+
+/**
+ * @brief Add schedule node (containing process) to a linked list of schedule nodes
+ * @param head Pointer to the head schedule node
+ * @param newNode Pointer to the new schedule node to be added
+ */
+void queueProc(scheduleNode *head, scheduleNode *newNode);
+
+/**
+ * @brief Dequeues the specified schedule node from it's queue
+ * @param targetProc Pointer to the specified schedule node to be dequeued
+ * @return Pointer to the now dequeued schedule node
+ */
+scheduleNode *dequeueProc(scheduleNode *targetProc);
 
 /**
  * @brief For testing purposes. Get the next process in the ready queue

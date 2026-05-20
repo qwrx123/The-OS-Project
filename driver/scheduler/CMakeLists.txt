@@ -7,13 +7,10 @@ add_library(
     scheduler
     STATIC
     scheduler.c
-    scheduleNode.c
 )
 
 registerFilesToFormat(FILES
-                        scheduler.c
-                        scheduleNode.h
-                        scheduleNode.c)
+                        scheduler.c)
 
 target_compile_options(scheduler PRIVATE
     -nostdlib

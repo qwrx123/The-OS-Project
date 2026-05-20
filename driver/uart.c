@@ -24,7 +24,7 @@ char uart_getc_pl011();
 
 void uart_putc_16550(char c);
 void uart_puts_16550(const char *s);
-char uart_getc_16550(char c);
+char uart_getc_16550();
 
 static uart_regs_t *UART = (uart_regs_t *)UARTADDRESS;
 
@@ -48,6 +48,7 @@ void uart_init(uart_regs_t *uart_device, uart_type init_type)
 		UART->id_16550.IER |= NS16550_IER_RDA;
 		UART->id_16550.IIR_FCR = 0x01;
 		uart_putc_impl = &uart_putc_16550;
+		uart_getc_impl = &uart_getc_16550;
 		uart_puts_impl = &uart_puts_16550;
 		break;
 	case id_pl011:
@@ -149,6 +150,14 @@ void uart_putc_16550(char c)
 		uart_tbr_callback();
 	}
 #endif
+}
+
+char uart_getc_16550()
+{
+	while ((UART->id_16550.LSR & (1u)) == 0)
+	{
+	}
+	return UART->id_16550.RBR_TBR;
 }
 
 void uart_puts_16550(const char *s)

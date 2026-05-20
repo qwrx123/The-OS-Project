@@ -55,7 +55,9 @@ el1_start:
 	bl kernel_init
 	ldr x0, =initializedKernel
 	bl uart_puts
-	b .
+slow_loop:
+    wfi
+    b slow_loop
 
 .data
 	clearBSS: .ascii "ASM: Cleared BSS\r\n\0"

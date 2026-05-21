@@ -12,6 +12,7 @@
 char *itoa(int value, char *str, int base)
 {
 	str[0] = '\0';
+	str[1] = '\0';
 	bool negative = (value < 0);
 
 	unsigned int unsigned_value = value;
@@ -28,7 +29,7 @@ char *itoa(int value, char *str, int base)
 		}
 		unsigned_value /= base;
 		int i;
-		for (i = 0; str[i] != '\0'; i++)
+		for (i = (negative ? 1 : 0); str[i] != '\0'; i++)
 		{
 			char temp_char = str[i];
 			str[i] = single_digit;
@@ -42,15 +43,7 @@ char *itoa(int value, char *str, int base)
 	}
 	if (negative)
 	{
-		char single_digit = '-';
-		int i;
-		for (i = 0; str[i] != '\0'; i++)
-		{
-			char temp_char = str[i];
-			str[i] = single_digit;
-			single_digit = temp_char;
-		}
-		str[i] = single_digit;
+		str[0] = '-';
 	}
 	return str;
 }

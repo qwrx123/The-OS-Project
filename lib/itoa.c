@@ -5,35 +5,52 @@
  */
 
 #include "kernel/stdint.h"
+#include "kernel/stdbool.h"
 
 #define INT_LENGTH 10
 
 char *itoa(int value, char *str, int base)
 {
 	str[0] = '\0';
-	while (value != 0)
+	bool negative = (value < 0);
+
+	unsigned int unsigned_value = value;
+	if (negative)
 	{
-		uint8_t single_digit = (value % base) + '0';
+		unsigned_value = -unsigned_value;
+	}
+	while (unsigned_value != 0)
+	{
+		uint8_t single_digit = (unsigned_value % base) + '0';
 		if (single_digit > '9')
 		{
 			single_digit += 'a' - '9' - 1;
 		}
-		value /= base;
+		unsigned_value /= base;
 		int i;
-		for (i = 0; i < INT_LENGTH && str[i] != '\0'; i++)
+		for (i = 0; str[i] != '\0'; i++)
 		{
 			char temp_char = str[i];
 			str[i] = single_digit;
 			single_digit = temp_char;
 		}
-		if (i < INT_LENGTH)
-		{
-			str[i] = single_digit;
-		}
+		str[i] = single_digit;
 	}
 	if (str[0] == '\0')
 	{
 		str[0] = '0';
+	}
+	if (negative)
+	{
+		char single_digit = '-';
+		int i;
+		for (i = 0; str[i] != '\0'; i++)
+		{
+			char temp_char = str[i];
+			str[i] = single_digit;
+			single_digit = temp_char;
+		}
+		str[i] = single_digit;
 	}
 	return str;
 }

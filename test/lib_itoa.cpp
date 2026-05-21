@@ -98,3 +98,17 @@ TEST(itoa_test, consecutive_calls_overwrite)
 	itoa(23, buf, 10);
 	EXPECT_STREQ("23", buf);
 }
+
+TEST(itoa_test, negative_base10_requires_minus)
+{
+	char buf[32] = { 0 };
+	itoa(-123, buf, 10);
+	EXPECT_STREQ("-123", buf);
+}
+
+TEST(itoa_test, negative_INT_MIN_requires_minus)
+{
+	char buf[32] = { 0 };
+	itoa((-2147483647 - 1), buf, 10);
+	EXPECT_STREQ("-2147483648", buf);
+}

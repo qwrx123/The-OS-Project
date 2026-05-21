@@ -13,6 +13,10 @@ char *itoa(int value, char *str, int base)
 	while (value != 0)
 	{
 		uint8_t single_digit = (value % base) + '0';
+		if (single_digit > '9')
+		{
+			single_digit += 'a' - '9' - 1;
+		}
 		value /= base;
 		int i;
 		for (i = 0; i < INT_LENGTH && str[i] != '\0'; i++)

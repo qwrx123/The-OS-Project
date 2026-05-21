@@ -68,3 +68,33 @@ TEST(itoa_test, large_number_base10)
 	itoa(2147483647, buf, 10);
 	EXPECT_STREQ("2147483647", buf);
 }
+
+TEST(itoa_test, zero_base16)
+{
+	char buf[32] = { 0 };
+	itoa(0, buf, 16);
+	EXPECT_STREQ("0", buf);
+}
+
+TEST(itoa_test, base36_z)
+{
+	char buf[32] = { 0 };
+	itoa(35, buf, 36);
+	EXPECT_STREQ("z", buf);
+}
+
+TEST(itoa_test, base11_ten_is_a)
+{
+	char buf[32] = { 0 };
+	itoa(10, buf, 11);
+	EXPECT_STREQ("a", buf);
+}
+
+TEST(itoa_test, consecutive_calls_overwrite)
+{
+	char buf[32] = { 0 };
+	itoa(1, buf, 10);
+	EXPECT_STREQ("1", buf);
+	itoa(23, buf, 10);
+	EXPECT_STREQ("23", buf);
+}

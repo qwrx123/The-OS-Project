@@ -10,6 +10,7 @@
 
 char *itoa(int value, char *str, int base)
 {
+	str[0] = '\0';
 	while (value != 0)
 	{
 		uint8_t single_digit = (value % base) + '0';

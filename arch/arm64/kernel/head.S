@@ -24,6 +24,8 @@ _start:
 	bl early_mmu_init
 	ldr x0, =initializedMMU
 	bl uart_puts
+	MOV X0, #0x00300000
+	MSR CPACR_EL1, X0
 	bl kernel_init
 	ldr x0, =initializedKernel
 	bl uart_puts

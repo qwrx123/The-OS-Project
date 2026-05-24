@@ -25,6 +25,11 @@
 
 #define GICR_WAKER (*(volatile uint32_t *)(GICR_BASE_PHYS + 0x0014))
 
+
+/**
+ * @brief This function initializes the gic and related devices (GIC, Distributer, Redistributer)
+ * 
+ */
 void gic_init()
 {
 	uint32_t waker_val;
@@ -51,6 +56,11 @@ void gic_init()
 	gic_enable_irq(UART_IRQ);
 }
 
+/**
+ * @brief This function enables a IRQ for a specific chip.
+ * 
+ * @param irq ID for the irq to enable.
+ */
 void gic_enable_irq(uint32_t irq)
 {
 	uint32_t reg = irq / 32;

@@ -27,8 +27,8 @@ el1_start:
 	ldr x2, =__bss_end
 	sub x2, x2, x0
 	bl memset
-	mov x0, 0
-	mov x1, 0
+	mov x0, #0
+	mov x1, #0
 	bl uart_init
 	ldr x0, =clearBSS
 	bl uart_puts

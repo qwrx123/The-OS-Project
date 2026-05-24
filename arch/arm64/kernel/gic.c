@@ -77,7 +77,6 @@ void gic_init()
 	gic_enable_irq(UART_IRQ);
 }
 
-
 void gic_enable_irq(uint32_t irq)
 {
 	uint32_t reg = irq / 32;

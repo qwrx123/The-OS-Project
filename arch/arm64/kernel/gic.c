@@ -45,7 +45,8 @@
  */
 #define GICD_IGROUPR(n) \
 	(*(volatile uint32_t *)(GICD_BASE_PHYS + 0x080 + ((n) * 4)))
-/** @brief GICR_WAKER  
+/** 
+ * @brief GICR_WAKER  
  * This register is used to wake up the redistributer from a low power state.
 */
 #define GICR_WAKER (*(volatile uint32_t *)(GICR_BASE_PHYS + 0x0014))

@@ -30,9 +30,9 @@ el1_start:
 	mov x0, #0
 	mov x1, #0
 	bl uart_init
+	bl early_mmu_init
 	ldr x0, =clearBSS
 	bl uart_puts
-	bl early_mmu_init
 	ldr x0, =initializedMMU
 	bl uart_puts
 

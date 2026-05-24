@@ -8,6 +8,7 @@ add_library(
     STATIC
     uart.c
     memallc.c
+    $<TARGET_OBJECTS:scheduler>
 )
 
 registerFilesToFormat(FILES uart.c memallc.c)
@@ -24,3 +25,5 @@ target_include_directories(driver
     PUBLIC
     ${PROJECT_SOURCE_DIR}/include
 )
+
+add_subdirectory(scheduler)

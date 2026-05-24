@@ -15,11 +15,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-registerFilesToFormat(FILES driver_uart.cpp memallc.cpp lib_itoa.cpp)
+registerFilesToFormat(FILES driver_uart.cpp memallc.cpp
+                            scheduler.cpp lib_itoa.cpp)
 
 add_executable(projectTests
     driver_uart.cpp
     memallc.cpp
+    scheduler.cpp
     lib_itoa.cpp)
 
 target_include_directories(projectTests PRIVATE ${PROJECT_SOURCE_DIR}/include)
@@ -27,6 +29,7 @@ target_include_directories(projectTests PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(projectTests
     PRIVATE
     driver
+    scheduler
     lib
     GTest::gtest_main)
 

@@ -8,28 +8,48 @@
 #include "socfunctions_gic.h"
 #include <kernel/stdint.h>
 
+/**
+ * @brief GICD_CTLR
+ * This register is used to control the GIC distributor.
+ */
 #define GICD_CTLR (*(volatile uint32_t *)(GICD_BASE_PHYS + 0x000))
+/**
+ * @brief GICD_ISENABLER(n)
+ * This register is used to enable a specific interrupt.
+ */
 #define GICD_ISENABLER(n) \
 	(*(volatile uint32_t *)(GICD_BASE_PHYS + 0x100 + ((n) * 4)))
+/**
+ * @brief GICD_ICENABLER(n)
+ * This register is used to disable a specific interrupt.
+ */
 #define GICD_ICENABLER(n) \
 	(*(volatile uint32_t *)(GICD_BASE_PHYS + 0x180 + ((n) * 4)))
 
+/**
+ * @brief GICD_IPRIORITYR_BYTE(n)
+ * This register is used to set the priority for a specific interrupt.
+ */
 #define GICD_IPRIORITYR_BYTE(n) \
 	(*(volatile uint8_t *)(GICD_BASE_PHYS + 0x400 + (n)))
 
+/**
+ * @brief GICD_IROUTER(n)
+ * This register is used to set the routing for a specific interrupt.
+ */
 #define GICD_IROUTER(n) \
 	(*(volatile uint64_t *)(GICD_BASE_PHYS + 0x6000 + ((n) * 8)))
-
+/**
+ * @brief GICD_IGROUPR(n)
+ * This register is used to set the group for a specific interrupt.
+ */
 #define GICD_IGROUPR(n) \
 	(*(volatile uint32_t *)(GICD_BASE_PHYS + 0x080 + ((n) * 4)))
-
+/** @brief GICR_WAKER  
+ * This register is used to wake up the redistributer from a low power state.
+*/
 #define GICR_WAKER (*(volatile uint32_t *)(GICR_BASE_PHYS + 0x0014))
 
-
-/**
- * @brief This function initializes the gic and related devices (GIC, Distributer, Redistributer)
- * 
- */
 void gic_init()
 {
 	uint32_t waker_val;
@@ -56,11 +76,7 @@ void gic_init()
 	gic_enable_irq(UART_IRQ);
 }
 
-/**
- * @brief This function enables a IRQ for a specific chip.
- * 
- * @param irq ID for the irq to enable.
- */
+
 void gic_enable_irq(uint32_t irq)
 {
 	uint32_t reg = irq / 32;
@@ -76,6 +92,7 @@ void gic_enable_irq(uint32_t irq)
 	GICD_ISENABLER(reg) |= bit;
 	gic_isb();
 }
+
 void gic_disable_irq(uint32_t irq)
 {
 	uint32_t reg = (irq / 32);

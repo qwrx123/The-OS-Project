@@ -11,6 +11,10 @@
 
 extern void uart_puts(const char *s);
 
+/**
+ * @brief Handles IRQs for EL1
+ * 
+ */
 void el1_irq_handler(/*struct pt_regs *regs*/)
 {
 	uint32_t irq = gic_get_active_irq();

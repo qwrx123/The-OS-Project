@@ -8,6 +8,9 @@
 
 extern void uart_puts(const char *s);
 
+/**
+ * @brief Structure for storing processor state during exception handling
+ */
 struct pt_regs
 {
 	uint64_t x[31];
@@ -16,6 +19,12 @@ struct pt_regs
 	uint64_t elr;
 };
 
+/**
+ * @brief This function returns a human readable string for a given exception.
+ * 
+ * @param esr The exception syndrome register value.
+ * @return const char* A human readable string for the exception.
+ */
 static const char *exception_class_name(uint64_t esr)
 {
 	uint64_t ec = (esr >> 26) & 0x3f;
@@ -49,6 +58,11 @@ static const char *exception_class_name(uint64_t esr)
 	}
 }
 
+/**
+ * @brief Handles synchronous exceptions for EL1
+ * 
+ * @param regs Pointer to the processor state structure
+ */
 void el1_sync_handler(struct pt_regs *regs)
 {
 	uint64_t ec = (regs->esr >> 26) & 0x3f;

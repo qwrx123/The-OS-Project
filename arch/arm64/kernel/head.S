@@ -46,6 +46,7 @@ el1_start:
     ldr x0, =initializedGIC
     bl uart_puts
 
+	//Enable interrupts
 	msr daifclr, #2
 
 	ldr x0, =aboutToBreak

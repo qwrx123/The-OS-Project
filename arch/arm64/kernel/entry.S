@@ -45,7 +45,9 @@ vector_table:
     b .
     .balign 0x80
     b .
-
+/**
+ * @brief Synchronous exception entry point for EL1
+ */
 sync_entry:
     sub sp, sp, #272
     stp x0, x1, [sp, #0]
@@ -97,6 +99,9 @@ sync_entry:
     add sp, sp, #272
     eret
 
+/**
+ * @brief IRQ entry point for EL1
+ */
 irq_entry:
     sub sp, sp, #272
     stp x0, x1, [sp, #0]

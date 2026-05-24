@@ -7,6 +7,12 @@
 #ifndef SOCFUNCTIONS_GIC_H
 #define SOCFUNCTIONS_GIC_H
 
+/**
+ * @file socfunctions_gic.h
+ * @brief This file contains device dependent code for the aarch64 archetectrue
+ * to read and write to SOC registers to enable hardware features
+ */
+
 #include "kernel/types.h"
 #include <kernel/stdint.h>
 

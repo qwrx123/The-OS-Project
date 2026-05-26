@@ -6,7 +6,7 @@
 
 #include "mmu.h"
 #include "board_devices.h"
-#include "socfunctions.h"
+#include "socfunctions_mmu.h"
 #include "kernel/string.h"
 #include "kernel/types.h"
 #include "kernel/stddef.h"

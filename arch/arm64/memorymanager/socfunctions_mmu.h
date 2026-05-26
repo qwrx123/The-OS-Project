@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#ifndef SOCFUNCTIONS_H
-#define SOCFUNCTIONS_H
+#ifndef SOCFUNCTIONSMMU_H
+#define SOCFUNCTIONSMMU_H
 
 /**
- * @file socfunctions.h
+ * @file socfunctions_mmu.h
  * @brief This file contains device dependent code for the aarch64 archetectrue
  * to read and write to SOC registers to enable hardware features
  */

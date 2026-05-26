@@ -34,7 +34,7 @@ SECTIONS
 	.page_tables (NOLOAD) : ALIGN(0x1000)
 	{
 		__page_tables_start = .;
-		. = . + 3 * 0x1000;
+		. = . + 5 * 0x1000;
 		__page_tables_end = .;
 		__page_tables_size = __page_tables_end - __page_tables_start;
 	}

@@ -7,7 +7,15 @@ add_library(
     arch_kernel
     STATIC
     head.S
+    entry.S
+    irq.c
+    traps.c
+    gic.c
 )
+
+registerFilesToFormat(FILES gic.c gic.h 
+                    irq.c traps.c
+                    socfunctions_gic.h)
 
 target_compile_options(arch_kernel PRIVATE
   -nostdlib 
@@ -16,3 +24,8 @@ target_compile_options(arch_kernel PRIVATE
   -Wextra
   -Wpedantic
   -Werror)
+
+target_include_directories(arch_kernel
+    PUBLIC
+    ${PROJECT_SOURCE_DIR}/include
+)

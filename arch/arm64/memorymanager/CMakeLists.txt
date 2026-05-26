@@ -10,7 +10,7 @@ add_library(
     board_devices.c 
 )
 
-registerFilesToFormat(FILES socfunctions.h
+registerFilesToFormat(FILES socfunctions_mmu.h
                         mmu.c mmu.h
                         board_devices.c
                         board_devices.h)

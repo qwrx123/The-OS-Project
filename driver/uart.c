@@ -16,12 +16,15 @@ void (*uart_tbr_callback)() = NULL;
 
 void (*uart_putc_impl)(char) = NULL;
 void (*uart_puts_impl)(const char *s) = NULL;
+char (*uart_getc_impl)(void) = NULL;
 
 void uart_putc_pl011(char c);
 void uart_puts_pl011(const char *s);
+char uart_getc_pl011();
 
 void uart_putc_16550(char c);
 void uart_puts_16550(const char *s);
+char uart_getc_16550();
 
 static uart_regs_t *UART = (uart_regs_t *)UARTADDRESS;
 
@@ -42,8 +45,10 @@ void uart_init(uart_regs_t *uart_device, uart_type init_type)
 	default:
 #endif
 	case id_16550:
+		UART->id_16550.IER |= NS16550_IER_RDA;
 		UART->id_16550.IIR_FCR = 0x01;
 		uart_putc_impl = &uart_putc_16550;
+		uart_getc_impl = &uart_getc_16550;
 		uart_puts_impl = &uart_puts_16550;
 		break;
 	case id_pl011:
@@ -51,7 +56,10 @@ void uart_init(uart_regs_t *uart_device, uart_type init_type)
 	case id_default:
 	default:
 #endif
+		UART->id_pl011.ICR = PL011_ICR_CLEAR;
+		UART->id_pl011.IMSC |= PL011_RXIM;
 		uart_putc_impl = &uart_putc_pl011;
+		uart_getc_impl = &uart_getc_pl011;
 		uart_puts_impl = &uart_puts_pl011;
 		break;
 	}
@@ -63,6 +71,15 @@ void uart_putc(char c)
 	{
 		uart_putc_impl(c);
 	}
+}
+
+char uart_getc()
+{
+	if (uart_getc_impl)
+	{
+		return uart_getc_impl();
+	}
+	return '\0';
 }
 
 void uart_puts(const char *s)
@@ -95,6 +112,14 @@ void uart_putc_pl011(char c)
 #endif
 }
 
+char uart_getc_pl011()
+{
+	while (UART->id_pl011.FR & (1u << 4))
+	{
+	}
+	return UART->id_pl011.DR;
+}
+
 void uart_puts_pl011(const char *s)
 {
 	if (!s)
@@ -125,6 +150,14 @@ void uart_putc_16550(char c)
 		uart_tbr_callback();
 	}
 #endif
+}
+
+char uart_getc_16550()
+{
+	while ((UART->id_16550.LSR & (1u)) == 0)
+	{
+	}
+	return UART->id_16550.RBR_TBR;
 }
 
 void uart_puts_16550(const char *s)

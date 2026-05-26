@@ -6,6 +6,8 @@
 
 #include "uart.h"
 #include "memallc.h"
+#include "scheduler.h"
+#include "proc.h"
 #include "timer.h"
 
 int kernel_init(void *name)
@@ -34,5 +36,19 @@ int kernel_init(void *name)
 			timer_interrupt();
 		}
 	}
+
+	schedulerInit_static();
+	context emptyContext =
+		(context){ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	proc proc1 = (proc){ READY, emptyContext, 1 };
+	uart_puts("Example process proc1 created.\r\n");
+	scheduleProcess_static(proc1);
+	uart_puts("Example process proc2 created.\r\n");
+	proc proc2 = (proc){ SLEEPING, emptyContext, 2 };
+	scheduleProcess_static(proc2);
+	procSwitch_static();
+	procAwaken_static();
+	killProcess_static();
+
 	return 0;
 }

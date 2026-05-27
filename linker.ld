@@ -45,4 +45,6 @@ SECTIONS
 			_stack_top = .;
 	}
 	__kernel_end = .;
+	. = ALIGN(0x1000);
+	__heap_start = .;
 }

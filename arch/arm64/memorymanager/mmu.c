@@ -11,6 +11,7 @@
 #include "kernel/types.h"
 #include "kernel/stddef.h"
 
+#include "memallc.h"
 #include "uart.h"
 
 /**
@@ -305,6 +306,13 @@ extern uint8_t __kernel_start[];
  */
 extern uint8_t __kernel_end[];
 
+/**
+ * @brief The physical address of the beginning of the heap
+ */
+extern uint8_t __heap_start[];
+
+uintptr_t heap_start;
+uintptr_t heap_end;
 void early_mmu_init()
 {
 	write_mair_el1(MAIR_EL1_SET);
@@ -328,6 +336,14 @@ void early_mmu_init()
 
 	uart_puts("MMU: Enabling MMU\r\n");
 	enable_mmu();
+
+	//HERE BE HERE BE TECHNICAL DEBT, a real implementation would
+	//use the device tree. We have 512M of ram to work with
+	//both of these values SHOULD be aligned
+	heap_start = (uintptr_t)__heap_start;
+	heap_end = (uintptr_t)__kernel_start + (512ULL * 1024ULL * 1024ULL);
+
+	init_memallc((void *)heap_start, heap_end - heap_start);
 }
 
 static void init_l1_table(uint64_t *pa)

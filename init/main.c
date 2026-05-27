@@ -8,6 +8,7 @@
 #include "memallc.h"
 #include "scheduler.h"
 #include "proc.h"
+#include "memory.h"
 
 int kernel_init(void *name)
 {
@@ -16,12 +17,22 @@ int kernel_init(void *name)
 #else
 	uart_init(0, id_16550);
 #endif
-	init_memallc((void *)0x400000, 0x200000);
 	if (name)
 	{
 	}
 	uart_puts("Hello world\r\n");
-	memallc(0x1000);
+	char *test = (char *)memallc(0x1000);
+	const char *test_output = "Copy to heap";
+	int i;
+	for (i = 0; test_output[i] != '\0'; i++)
+	{
+		test[i] = test_output[i];
+	}
+	test[i] = '\0';
+	uart_puts("memallc: Able to write to heap without crash\r\n");
+	uart_puts("memallc: Output written \"");
+	uart_puts(test);
+	uart_puts("\"\r\n");
 	free_memallc(memallc(0x1000));
 
 	schedulerInit_static();

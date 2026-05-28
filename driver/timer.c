@@ -65,6 +65,7 @@ void timer_interrupt()
 #else
 	timer_imp_interrupt();
 	uart_puts("timer: interrupt occurred\r\n");
+	timer_to_string();
 #endif
 }
 

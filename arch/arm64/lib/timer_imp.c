@@ -29,28 +29,28 @@ static inline uint64_t read_cntpct_el0(void)
 	return v;
 }
 
-static inline uint64_t read_cntps_ctl_el1(void)
+static inline uint64_t read_cntp_ctl_el0(void)
 {
 	uint64_t v;
-	__asm__ volatile("mrs %0, cntps_ctl_el1" : "=r"(v));
+	__asm__ volatile("mrs %0, cntp_ctl_el0" : "=r"(v));
 	return v;
 }
 
-static inline void write_cntps_ctl_el1(uint64_t v)
+static inline void write_cntp_ctl_el0(uint64_t v)
 {
-	__asm__ volatile("msr cntps_ctl_el1, %0" ::"r"(v));
+	__asm__ volatile("msr cntp_ctl_el0, %0" ::"r"(v));
 }
 
-static inline uint64_t read_cntps_cval_el1(void)
+static inline uint64_t read_cntp_cval_el0(void)
 {
 	uint64_t v;
-	__asm__ volatile("mrs %0, cntps_cval_el1" : "=r"(v));
+	__asm__ volatile("mrs %0, cntp_cval_el0" : "=r"(v));
 	return v;
 }
 
-static inline void write_cntps_cval_el1(uint64_t v)
+static inline void write_cntp_cval_el0(uint64_t v)
 {
-	__asm__ volatile("msr cntps_cval_el1, %0" ::"r"(v));
+	__asm__ volatile("msr cntp_cval_el0, %0" ::"r"(v));
 }
 
 void init_timer_imp()
@@ -58,30 +58,29 @@ void init_timer_imp()
 	freq = read_cntfrq_el0();
 	time = read_cntpct_el0();
 	sec = time / freq;
-	write_cntps_cval_el1(time + freq);
+	write_cntp_cval_el0(time + freq);
 }
 
 void enable_timer_imp()
 {
-	uint64_t ctl = read_cntps_ctl_el1();
+	uint64_t ctl = read_cntp_ctl_el0();
 	ctl |= 5u;
 	ctl &= ~2u;
-	write_cntps_ctl_el1(ctl ^ 5);
+	write_cntp_ctl_el0(ctl ^ 5);
 }
 
 void disable_timer_imp()
 {
-	uint64_t ctl = read_cntps_ctl_el1();
+	uint64_t ctl = read_cntp_ctl_el0();
 	ctl &= ~5u;
-	write_cntps_ctl_el1(ctl);
+	write_cntp_ctl_el0(ctl);
 }
 
 void timer_imp_interrupt()
 {
 	time = read_cntpct_el0();
-	interrupt = read_cntps_cval_el1() + freq;
-	write_cntps_cval_el1(interrupt);
-	timer_to_string_imp();
+	interrupt = read_cntp_cval_el0() + freq;
+	write_cntp_cval_el0(interrupt);
 }
 
 uint64_t get_time_imp()
@@ -96,7 +95,7 @@ uint64_t get_timer_freq_imp()
 
 uint64_t get_timer_ctl_imp()
 {
-	return read_cntps_ctl_el1();
+	return read_cntp_ctl_el0();
 }
 
 uint64_t get_timer_sec_imp()

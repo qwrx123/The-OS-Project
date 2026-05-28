@@ -26,16 +26,6 @@ int kernel_init(void *name)
 	uart_puts("Hello world\r\n");
 	memallc(0x1000);
 	free_memallc(memallc(0x1000));
-	int ticks = 0;
-	uint64_t frequency = get_timer_freq();
-	while (1)
-	{
-		ticks++;
-		if (ticks % frequency == 0)
-		{
-			timer_interrupt();
-		}
-	}
 
 	schedulerInit_static();
 	context emptyContext =
@@ -49,6 +39,17 @@ int kernel_init(void *name)
 	procSwitch_static();
 	procAwaken_static();
 	killProcess_static();
+
+	int ticks = 0;
+	uint64_t frequency = get_timer_freq();
+	while (1)
+	{
+		ticks++;
+		if (ticks % frequency == 0)
+		{
+			timer_interrupt();
+		}
+	}
 
 	return 0;
 }

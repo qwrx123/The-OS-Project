@@ -60,3 +60,24 @@ uint64_t get_timer_sec_imp()
     sec = time / freq;
     return sec;
 }
+
+char *timer_to_string_imp()
+{
+    static char str_sec[20];
+    int len = 20;
+    uint64_t sec = get_timer_sec_imp();
+    int i = len - 1;
+    str_sec[i] = '\0';
+    do {
+        str_sec[--i] = (sec % 10) + '0';
+        sec /= 10;
+    } while (sec > 0 && i > 0);
+    
+    int j = 0;
+    while (str_sec[i] != '\0') {
+        str_sec[j++] = str_sec[i++];
+    }
+    str_sec[j] = '\0';
+
+    return str_sec;
+}

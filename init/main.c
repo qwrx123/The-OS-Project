@@ -40,16 +40,35 @@ int kernel_init(void *name)
 	procAwaken_static();
 	killProcess_static();
 
+	/*
+		TODO: Implement timer interrupt
+	*/
+
+	uint64_t freq = get_timer_freq();
+	uint64_t current_time = get_time();
+	__asm__ volatile("msr cntp_cval_el0, %0" ::"r"(current_time + freq));
+	__asm__ volatile("isb");
+
+	uart_puts("Timer armed. Waiting for interrupts...\r\n");
+
+	while (1)
+	{
+		__asm__ volatile("wfi");
+	}
+
+	/*
+	is not consistent, it is based on hardware speed
+	
 	int ticks = 0;
 	uint64_t frequency = get_timer_freq();
 	while (1)
 	{
 		ticks++;
-		if (ticks % frequency == 0)
+		if (ticks % (frequency * 2) == 0)
 		{
 			timer_interrupt();
 		}
 	}
-
+*/
 	return 0;
 }

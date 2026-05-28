@@ -51,6 +51,7 @@ static inline uint64_t read_cntp_cval_el0(void)
 static inline void write_cntp_cval_el0(uint64_t v)
 {
 	__asm__ volatile("msr cntp_cval_el0, %0" ::"r"(v));
+	__asm__ volatile("isb");
 }
 
 void init_timer_imp()
@@ -64,9 +65,9 @@ void init_timer_imp()
 void enable_timer_imp()
 {
 	uint64_t ctl = read_cntp_ctl_el0();
-	ctl |= 5u;
+	ctl |= 1u;
 	ctl &= ~2u;
-	write_cntp_ctl_el0(ctl ^ 5);
+	write_cntp_ctl_el0(ctl);
 }
 
 void disable_timer_imp()

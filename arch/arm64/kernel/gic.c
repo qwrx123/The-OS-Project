@@ -75,6 +75,7 @@ void gic_init()
 
 	//enable irqs we need
 	gic_enable_irq(UART_IRQ);
+	gic_enable_irq(TIMER_IRQ);
 }
 
 void gic_enable_irq(uint32_t irq)

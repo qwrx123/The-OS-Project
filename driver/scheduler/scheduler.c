@@ -11,6 +11,10 @@
 
 extern void reg_switch(context outgoing, context incoming);
 
+static scheduleNode *readyQueue;
+static scheduleNode *sleepQueue;
+static scheduleNode *currentProc;
+
 #define MAX_SCHEDULED_PROCESSES 24
 static proc currentProc_s;
 static proc readyQueue_s[MAX_SCHEDULED_PROCESSES];
@@ -20,16 +24,20 @@ static proc sleepQueue_s[MAX_SCHEDULED_PROCESSES];
 static int sleepQueue_head;
 static int sleepQueue_tail;
 
-void schedulerInit(sched *scheduler)
+void schedulerInit()
 {
-	scheduleNode *ready = memallc(sizeof(scheduleNode));
-	scheduleNode *sleep = memallc(sizeof(scheduleNode));
-	ready->next = ready;
-	ready->prev = ready;
-	sleep->next = sleep;
-	sleep->prev = sleep;
-	scheduler->readyQueue = ready;
-	scheduler->sleepQueue = sleep;
+	uart_puts("scheduler: Initializing scheduler.\r\n");
+
+	uart_puts("scheduler: Setting ready queue.\r\n");
+	readyQueue = memallc(sizeof(scheduleNode));
+	readyQueue->next = readyQueue;
+	readyQueue->prev = readyQueue;
+
+	uart_puts("scheduler: Setting sleep queue.\r\n");
+	sleepQueue = memallc(sizeof(scheduleNode));
+	sleepQueue->next = sleepQueue;
+	sleepQueue->prev = sleepQueue;
+
 	uart_puts("scheduler: Scheduler initiallized\r\n");
 }
 

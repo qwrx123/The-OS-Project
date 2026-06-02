@@ -16,12 +16,12 @@
 #define GICD_BASE_PHYS 0x08000000ULL
 #define GICR_BASE_PHYS 0x080A0000ULL
 #define UART_IRQ ((uint32_t)33)
-#define TIMER_IRQ ((uint32_t)14)
+#define TIMER_IRQ ((uint32_t)30)
 #else
 #define GICD_BASE_PHYS 0x01800000ULL
 #define GICR_BASE_PHYS 0x01880000ULL
 #define UART_IRQ ((uint32_t)216)
-#define TIMER_IRQ ((uint32_t)14)
+#define TIMER_IRQ ((uint32_t)30)
 #endif
 
 /**

@@ -52,7 +52,10 @@ extern void (*uart_dr_callback)();
 extern void (*uart_lsr_callback)();
 extern void (*uart_tbr_callback)();
 
-static sched *testScheduler;
+scheduleNode *readyQueue;
+scheduleNode *sleepQueue;
+scheduleNode *currentProc;
+
 proc *testProcessRun;
 proc *testProcessReady;
 proc *testProcessReady2;
@@ -69,34 +72,27 @@ class Scheduler : public ::testing::Test
 
 	virtual ~Scheduler()
 	{
-		while (testScheduler->readyQueue->next !=
-		       testScheduler->readyQueue)
+		while (readyQueue->next != readyQueue)
 		{
-			free(testScheduler->readyQueue->next->process);
-			free(dequeueProc(testScheduler->readyQueue->next));
+			free(readyQueue->next->process);
+			free(dequeueProc(readyQueue->next));
 		}
 
-		while (testScheduler->sleepQueue->next !=
-		       testScheduler->sleepQueue)
+		while (sleepQueue->next != sleepQueue)
 		{
-			free(testScheduler->sleepQueue->next->process);
-			free(dequeueProc(testScheduler->sleepQueue->next));
+			free(sleepQueue->next->process);
+			free(dequeueProc(sleepQueue->next));
 		}
 
-		free(testScheduler->readyQueue);
-		free(testScheduler->sleepQueue);
-		free(testScheduler->currentProc->process);
-		free(testScheduler->currentProc);
-		free(testScheduler);
+		free(readyQueue);
+		free(sleepQueue);
+		free(currentProc->process);
+		free(currentProc);
 	}
 
 	virtual void SetUp()
 	{
 		uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
-		init_memallc((void *)0x1000, 0x200000);
-
-		testScheduler = new sched;
-		*testScheduler = (sched){ 0, 0, 0 };
 
 		scheduleNode *ready = new scheduleNode;
 		scheduleNode *sleep = new scheduleNode;
@@ -104,8 +100,8 @@ class Scheduler : public ::testing::Test
 		ready->prev = ready;
 		sleep->next = sleep;
 		sleep->prev = sleep;
-		testScheduler->readyQueue = ready;
-		testScheduler->sleepQueue = sleep;
+		readyQueue = ready;
+		sleepQueue = sleep;
 
 		context testContext0 = { 1000, 19, 20, 21, 22, 23, 24,
 					 25,   26, 27, 28, 29, 30 };
@@ -116,7 +112,7 @@ class Scheduler : public ::testing::Test
 
 		scheduleNode *runningNode = new scheduleNode;
 		scheduleNodeInit(runningNode, testProcessRun);
-		testScheduler->currentProc = runningNode;
+		currentProc = runningNode;
 
 		context testContext1 = { 2000, 1, 2, 3,	 4,  5, 6,
 					 7,    8, 9, 10, 11, 12 };
@@ -145,15 +141,15 @@ TEST_F(Scheduler, addProcessEmptyQueue)
 {
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
-	procToReady(testScheduler, node);
-	ASSERT_EQ(testProcessReady, getNextProcess(testScheduler));
+	procToReady(node);
+	ASSERT_EQ(testProcessReady, getNextProcess());
 }
 
 TEST_F(Scheduler, addProcessQueueLine)
 {
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
-	procToReady(testScheduler, node);
+	procToReady(node);
 
 	context newContext = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	testProcessReady2 = new proc;
@@ -163,19 +159,19 @@ TEST_F(Scheduler, addProcessQueueLine)
 	scheduleNode *node2 = new scheduleNode;
 	scheduleNodeInit(node2, testProcessReady2);
 
-	procToReady(testScheduler, node2);
-	ASSERT_EQ(testProcessReady, getNextProcess(testScheduler));
-	ASSERT_EQ(testProcessReady2, getLastProcess(testScheduler));
+	procToReady(node2);
+	ASSERT_EQ(testProcessReady, getNextProcess());
+	ASSERT_EQ(testProcessReady2, getLastProcess());
 }
 
 TEST_F(Scheduler, switchProcess)
 {
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
-	procToReady(testScheduler, node);
+	procToReady(node);
 
-	procSwitch(testScheduler);
-	ASSERT_EQ(testProcessReady, getRunningProcess(testScheduler));
+	procSwitch();
+	ASSERT_EQ(testProcessReady, getRunningProcess());
 }
 
 TEST_F(Scheduler, sleepProcess)
@@ -184,8 +180,8 @@ TEST_F(Scheduler, sleepProcess)
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
 
-	procToSleep(testScheduler, node);
-	ASSERT_EQ(testProcessReady, getNextSleepProcess(testScheduler));
+	procToSleep(node);
+	ASSERT_EQ(testProcessReady, getNextSleepProcess());
 }
 
 TEST_F(Scheduler, addProcessEmptyQueue_static)

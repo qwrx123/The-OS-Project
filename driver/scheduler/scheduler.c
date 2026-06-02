@@ -38,22 +38,24 @@ void schedulerInit()
 	sleepQueue->next = sleepQueue;
 	sleepQueue->prev = sleepQueue;
 
+	currentProc = 0;
+
 	uart_puts("scheduler: Scheduler initiallized\r\n");
 }
 
-void procToSleep(sched *scheduler, scheduleNode *processNode)
+void procToSleep(scheduleNode *processNode)
 {
-	queueProc(scheduler->sleepQueue, processNode);
+	queueProc(sleepQueue, processNode);
 	uart_puts("scheduler: Process put on sleep queue.\r\n");
 }
 
-void procToReady(sched *scheduler, scheduleNode *processNode)
+void procToReady(scheduleNode *processNode)
 {
-	queueProc(scheduler->readyQueue, processNode);
+	queueProc(readyQueue, processNode);
 	uart_puts("scheduler: Process put on ready queue.\r\n");
 }
 
-void scheduleProcess(sched *scheduler, proc *process)
+void scheduleProcess(proc *process)
 {
 	scheduleNode *node = memallc(sizeof(scheduleNode));
 	scheduleNodeInit(node, process);
@@ -61,60 +63,82 @@ void scheduleProcess(sched *scheduler, proc *process)
 
 	if (process->proc_state == READY)
 	{
-		procToReady(scheduler, node);
+		if (currentProc == 0)
+		{
+			process->proc_state = RUNNING;
+			currentProc = node;
+			uart_puts("scheduler: Process running.\r\n");
+		}
+		else
+		{
+			procToReady(node);
+		}
 	}
 	else if (process->proc_state == SLEEPING)
 	{
-		procToSleep(scheduler, node);
-	}
-	else if (process->proc_state == RUNNING)
-	{
-		//for testing purposes. should probably make an actual "if empty make process run" thing
-		scheduler->currentProc = node;
-		uart_puts("scheduler: Process running.\r\n");
+		procToSleep(node);
 	}
 }
 
-void procSwitch(sched *scheduler)
+void rescheduleProcess(scheduleNode *node)
 {
-	if (scheduler->readyQueue->next == scheduler->readyQueue)
+	if (node->process->proc_state == READY)
+	{
+		procToReady(node);
+	}
+	else if (node->process->proc_state == SLEEPING)
+	{
+		procToSleep(node);
+	}
+	else if (node->process->proc_state == ZOMBIE)
+	{
+		free_memallc(node->process);
+		free_memallc(node);
+	}
+}
+
+void procSwitch()
+{
+	if (readyQueue->next == readyQueue)
 	{
 		return;
 	}
 
-	scheduler->currentProc->process->proc_state = READY;
+	if (currentProc->process->proc_state == RUNNING)
+	{
+		currentProc->process->proc_state = READY;
+	}
 
 #ifndef TESTING //new issue: linker can't find definition when building for hardware
 	//reg_switch(scheduler->currentProc->process->proc_context,
 	//	   scheduler->readyQueue->next->process->proc_context);
 #endif
 
-	procToReady(scheduler, scheduler->currentProc);
+	rescheduleProcess(currentProc);
 
-	scheduler->currentProc = dequeueProc(scheduler->readyQueue->next);
+	currentProc = dequeueProc(readyQueue->next);
 
 	uart_puts("scheduler: Switched to next available process\r\n");
 }
 
-void killScheduler(sched *scheduler)
+void killScheduler()
 {
-	while (scheduler->readyQueue->next != scheduler->readyQueue)
+	while (readyQueue->next != readyQueue)
 	{
-		free_memallc(scheduler->readyQueue->next->process);
-		free_memallc(dequeueProc(scheduler->readyQueue->next));
+		free_memallc(readyQueue->next->process);
+		free_memallc(dequeueProc(readyQueue->next));
 	}
 
-	while (scheduler->sleepQueue->next != scheduler->sleepQueue)
+	while (sleepQueue->next != sleepQueue)
 	{
-		free_memallc(scheduler->sleepQueue->next->process);
-		free_memallc(dequeueProc(scheduler->sleepQueue->next));
+		free_memallc(sleepQueue->next->process);
+		free_memallc(dequeueProc(sleepQueue->next));
 	}
 
-	free_memallc(scheduler->readyQueue);
-	free_memallc(scheduler->sleepQueue);
-	free_memallc(scheduler->currentProc->process);
-	free_memallc(scheduler->currentProc);
-	free_memallc(scheduler);
+	free_memallc(readyQueue);
+	free_memallc(sleepQueue);
+	free_memallc(currentProc->process);
+	free_memallc(currentProc);
 
 	uart_puts("scheduler: Scheduler killed, all related memory freed.\r\n");
 }
@@ -148,29 +172,29 @@ scheduleNode *dequeueProc(scheduleNode *targetProc)
 	return targetProc;
 }
 
-proc *getNextProcess(sched *scheduler)
+proc *getNextProcess()
 {
-	return scheduler->readyQueue->next->process;
+	return readyQueue->next->process;
 }
 
-proc *getLastProcess(sched *scheduler)
+proc *getLastProcess()
 {
-	return scheduler->readyQueue->prev->process;
+	return readyQueue->prev->process;
 }
 
-proc *getNextSleepProcess(sched *scheduler)
+proc *getNextSleepProcess()
 {
-	return scheduler->sleepQueue->next->process;
+	return sleepQueue->next->process;
 }
 
-proc *getLastSleepProcess(sched *scheduler)
+proc *getLastSleepProcess()
 {
-	return scheduler->sleepQueue->prev->process;
+	return sleepQueue->prev->process;
 }
 
-proc *getRunningProcess(sched *scheduler)
+proc *getRunningProcess()
 {
-	return scheduler->currentProc->process;
+	return currentProc->process;
 }
 
 void schedulerInit_static()

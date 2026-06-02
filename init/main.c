@@ -35,15 +35,14 @@ int kernel_init(void *name)
 	uart_puts("\"\r\n");
 	free_memallc(memallc(0x1000));
 
-	sched* mainSchedule = memallc(sizeof(sched));
-	schedulerInit(mainSchedule);
+	schedulerInit();
 	context emptyContext0 =
 		(context){ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	proc *proc0 = memallc(sizeof(proc));
-	proc0->proc_context=emptyContext0;
+	proc0->proc_context = emptyContext0;
 	proc0->proc_ID = 0;
 	proc0->proc_state = RUNNING;
-	scheduleProcess(mainSchedule, proc0);
+	scheduleProcess(proc0);
 
 	uart_puts("static\r\n");
 

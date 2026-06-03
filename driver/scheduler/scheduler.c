@@ -48,10 +48,12 @@ void procToReady(scheduleNode *processNode)
 
 void scheduleProcess(proc *process)
 {
+	uart_puts("scheduler: Creating schedule node for process.\r\n");
 	scheduleNode *node = memallc(sizeof(scheduleNode));
 	scheduleNodeInit(node, process);
-	uart_puts("scheduler: Process given schedule node.\r\n");
+	uart_puts("scheduler: Schedule node created.\r\n");
 
+	uart_puts("scheduler: Checking process state...\r\n");
 	if (process->proc_state == READY)
 	{
 		if (currentProc == 0)
@@ -59,7 +61,7 @@ void scheduleProcess(proc *process)
 			process->proc_state = RUNNING;
 			currentProc = node;
 			uart_puts(
-				"scheduler: Empty process field. Process set to currently running.\r\n");
+				"scheduler: No current process set. New process set to currently running.\r\n");
 		}
 		else
 		{
@@ -74,6 +76,7 @@ void scheduleProcess(proc *process)
 
 void rescheduleProcess(scheduleNode *node)
 {
+	uart_puts("scheduler: Checking process state...\r\n");
 	if (node->process->proc_state == READY)
 	{
 		procToReady(node);
@@ -84,15 +87,18 @@ void rescheduleProcess(scheduleNode *node)
 	}
 	else if (node->process->proc_state == ZOMBIE)
 	{
-		free_memallc(node->process);
-		free_memallc(node);
+		uart_puts("scheduler: Process is a zombie. Kill it.\r\n");
+		endProcess(node);
 	}
 }
 
 void procSwitch()
 {
+	uart_puts("scheduler: Attempting process switch.\r\n");
 	if (readyQueue->next == readyQueue)
 	{
+		uart_puts(
+			"scheduler: No process waiting on ready queue, current process remains running.\r\n");
 		return;
 	}
 
@@ -125,6 +131,13 @@ void awakenProcess()
 	uart_puts("scheduler: Awakening sleeping process.\r\n");
 	sleepQueue->next->process->proc_state = READY;
 	rescheduleProcess(dequeueProc(sleepQueue->next));
+}
+
+void endProcess(scheduleNode *processNode)
+{
+	free_memallc(processNode->process);
+	free_memallc(processNode);
+	uart_puts("scheduler: Process terminated.");
 }
 
 void killScheduler()

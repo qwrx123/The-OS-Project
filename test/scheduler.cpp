@@ -124,7 +124,7 @@ TEST_F(Scheduler, addProcessEmptyQueue)
 {
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
-	procToReady(node);
+	rescheduleProcess(node);
 	ASSERT_EQ(testProcessReady, getNextProcess()->process);
 }
 
@@ -132,7 +132,7 @@ TEST_F(Scheduler, addProcessQueueLine)
 {
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
-	procToReady(node);
+	rescheduleProcess(node);
 
 	context newContext = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	testProcessReady2 = new proc;
@@ -142,7 +142,7 @@ TEST_F(Scheduler, addProcessQueueLine)
 	scheduleNode *node2 = new scheduleNode;
 	scheduleNodeInit(node2, testProcessReady2);
 
-	procToReady(node2);
+	rescheduleProcess(node2);
 	ASSERT_EQ(testProcessReady, getNextProcess()->process);
 	ASSERT_EQ(testProcessReady2, getLastProcess()->process);
 }
@@ -151,7 +151,7 @@ TEST_F(Scheduler, switchProcess)
 {
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
-	procToReady(node);
+	rescheduleProcess(node);
 
 	procSwitch();
 	ASSERT_EQ(testProcessReady, getRunningProcess()->process);
@@ -163,6 +163,19 @@ TEST_F(Scheduler, sleepProcess)
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
 
-	procToSleep(node);
+	rescheduleProcess(node);
 	ASSERT_EQ(testProcessReady, getNextSleepProcess()->process);
+}
+
+TEST_F(Scheduler, awakenProcess)
+{
+	testProcessReady->proc_state = SLEEPING;
+	scheduleNode *node = new scheduleNode;
+	scheduleNodeInit(node, testProcessReady);
+	rescheduleProcess(node);
+	ASSERT_EQ(testProcessReady, getNextSleepProcess()->process);
+
+	awakenProcess();
+	ASSERT_EQ(READY, testProcessReady->proc_state);
+	ASSERT_EQ(testProcessReady, getNextProcess()->process);
 }

@@ -35,6 +35,12 @@ void schedulerInit();
 void scheduleProcess(proc *process);
 
 /**
+ * @brief Queue a process that already has a scheduleNode
+ * @param node Pointer to the process's associated scheduleNode
+ */
+void rescheduleProcess(scheduleNode *node);
+
+/**
  * @brief Included in header for testing while scheduleProcess segfaults. Puts schedule node (process) on the ready queue
  * @param processNode Pointer to the schedule node containing the process to queue
  */
@@ -55,6 +61,12 @@ void procSwitch();
  * @brief Awakens a process waiting on the sleep queue.
  */
 void awakenProcess();
+
+/**
+ * @brief Ends specified process, freeing allocated memory
+ * @param processNode Pointer to the process to kill.
+ */
+void endProcess(scheduleNode *processNode);
 
 /**
  * @brief Frees all allocated memory for the scheduler

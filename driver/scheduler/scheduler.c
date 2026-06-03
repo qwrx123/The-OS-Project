@@ -172,29 +172,41 @@ scheduleNode *dequeueProc(scheduleNode *targetProc)
 	return targetProc;
 }
 
-proc *getNextProcess()
+void testingSchedulerInit(scheduleNode *ready, scheduleNode *sleep,
+			  scheduleNode *curProc)
 {
-	return readyQueue->next->process;
+	ready->next = ready;
+	ready->prev = ready;
+	readyQueue = ready;
+	sleep->next = sleep;
+	sleep->prev = sleep;
+	sleepQueue = sleep;
+	currentProc = curProc;
 }
 
-proc *getLastProcess()
+scheduleNode *getNextProcess()
 {
-	return readyQueue->prev->process;
+	return readyQueue->next;
 }
 
-proc *getNextSleepProcess()
+scheduleNode *getLastProcess()
 {
-	return sleepQueue->next->process;
+	return readyQueue->prev;
 }
 
-proc *getLastSleepProcess()
+scheduleNode *getNextSleepProcess()
 {
-	return sleepQueue->prev->process;
+	return sleepQueue->next;
 }
 
-proc *getRunningProcess()
+scheduleNode *getLastSleepProcess()
 {
-	return currentProc->process;
+	return sleepQueue->prev;
+}
+
+scheduleNode *getRunningProcess()
+{
+	return currentProc;
 }
 
 void schedulerInit_static()

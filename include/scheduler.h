@@ -78,34 +78,43 @@ void queueProc(scheduleNode *head, scheduleNode *newNode);
 scheduleNode *dequeueProc(scheduleNode *targetProc);
 
 /**
- * @brief For testing purposes. Get the next process in the ready queue
- * @return Pointer to the process contained in the next schedule node
+ * @brief For testing purposes. Initiallizes the scheduler with pre-allocated scheduleNodes.
+ * @param readyQueue Pointer to the readyQueue head scheduleNode.
+ * @param sleepQueue Pointer to the sleepQueue head scheduleNode.
+ * @param curProc Pointer to the "current process" of the test.
  */
-proc *getNextProcess();
+void testingSchedulerInit(scheduleNode *ready, scheduleNode *sleep,
+			  scheduleNode *curProc);
+
+/**
+ * @brief For testing purposes. Gets the next process in the ready queue
+ * @return Pointer to the next scheduleNode on readyQueue
+ */
+scheduleNode *getNextProcess();
 
 /**
  * @brief For testing purposes. Get the process last added to the ready queue
- * @return Pointer to the process contained in the last schedule node
+ * @return Pointer to the last scheduleNode on readyQueue
  */
-proc *getLastProcess();
+scheduleNode *getLastProcess();
 
 /**
  * @brief For testing purposes. Get the next process in the sleep queue
- * @return Pointer to the process contained in the next schedule node
+ * @return Pointer to the next scheduleNode in sleepQueue
  */
-proc *getNextSleepProcess();
+scheduleNode *getNextSleepProcess();
 
 /**
  * @brief For testing purposes. Get the process last added to the sleep queue
- * @return Pointer to the process contained in the last schedule node
+ * @return Pointer to the last scheduleNode in sleepQueue
  */
-proc *getLastSleepProcess();
+scheduleNode *getLastSleepProcess();
 
 /**
  * @brief For testing purposes. Get the currently running process of the scheduler
- * @return Pointer to the currently running process
+ * @return Pointer to the currently running process's scheduleNode
  */
-proc *getRunningProcess();
+scheduleNode *getRunningProcess();
 
 //functions below will mirror functions above, but for a static scheduler,
 //no dynamic memory allocation needed

@@ -54,7 +54,6 @@ extern void (*uart_tbr_callback)();
 
 scheduleNode *readyQueue;
 scheduleNode *sleepQueue;
-scheduleNode *currentProc;
 
 proc *testProcessRun;
 proc *testProcessReady;
@@ -86,22 +85,16 @@ class Scheduler : public ::testing::Test
 
 		free(readyQueue);
 		free(sleepQueue);
-		free(currentProc->process);
-		free(currentProc);
+		free(getRunningProcess()->process);
+		free(getRunningProcess());
 	}
 
 	virtual void SetUp()
 	{
 		uart_init(reinterpret_cast<uart_regs_t *>(&UARTMOCK), id_pl011);
 
-		scheduleNode *ready = new scheduleNode;
-		scheduleNode *sleep = new scheduleNode;
-		ready->next = ready;
-		ready->prev = ready;
-		sleep->next = sleep;
-		sleep->prev = sleep;
-		readyQueue = ready;
-		sleepQueue = sleep;
+		readyQueue = new scheduleNode;
+		sleepQueue = new scheduleNode;
 
 		context testContext0 = { 1000, 19, 20, 21, 22, 23, 24,
 					 25,   26, 27, 28, 29, 30 };
@@ -112,7 +105,7 @@ class Scheduler : public ::testing::Test
 
 		scheduleNode *runningNode = new scheduleNode;
 		scheduleNodeInit(runningNode, testProcessRun);
-		currentProc = runningNode;
+		testingSchedulerInit(readyQueue, sleepQueue, runningNode);
 
 		context testContext1 = { 2000, 1, 2, 3,	 4,  5, 6,
 					 7,    8, 9, 10, 11, 12 };
@@ -142,7 +135,7 @@ TEST_F(Scheduler, addProcessEmptyQueue)
 	scheduleNode *node = new scheduleNode;
 	scheduleNodeInit(node, testProcessReady);
 	procToReady(node);
-	ASSERT_EQ(testProcessReady, getNextProcess());
+	ASSERT_EQ(testProcessReady, getNextProcess()->process);
 }
 
 TEST_F(Scheduler, addProcessQueueLine)
@@ -160,8 +153,8 @@ TEST_F(Scheduler, addProcessQueueLine)
 	scheduleNodeInit(node2, testProcessReady2);
 
 	procToReady(node2);
-	ASSERT_EQ(testProcessReady, getNextProcess());
-	ASSERT_EQ(testProcessReady2, getLastProcess());
+	ASSERT_EQ(testProcessReady, getNextProcess()->process);
+	ASSERT_EQ(testProcessReady2, getLastProcess()->process);
 }
 
 TEST_F(Scheduler, switchProcess)
@@ -171,7 +164,7 @@ TEST_F(Scheduler, switchProcess)
 	procToReady(node);
 
 	procSwitch();
-	ASSERT_EQ(testProcessReady, getRunningProcess());
+	ASSERT_EQ(testProcessReady, getRunningProcess()->process);
 }
 
 TEST_F(Scheduler, sleepProcess)
@@ -181,7 +174,7 @@ TEST_F(Scheduler, sleepProcess)
 	scheduleNodeInit(node, testProcessReady);
 
 	procToSleep(node);
-	ASSERT_EQ(testProcessReady, getNextSleepProcess());
+	ASSERT_EQ(testProcessReady, getNextSleepProcess()->process);
 }
 
 TEST_F(Scheduler, addProcessEmptyQueue_static)

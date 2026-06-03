@@ -52,6 +52,11 @@ void procToSleep(scheduleNode *processNode);
 void procSwitch();
 
 /**
+ * @brief Awakens a process waiting on the sleep queue.
+ */
+void awakenProcess();
+
+/**
  * @brief Frees all allocated memory for the scheduler
  */
 void killScheduler();
@@ -115,20 +120,5 @@ scheduleNode *getLastSleepProcess();
  * @return Pointer to the currently running process's scheduleNode
  */
 scheduleNode *getRunningProcess();
-
-//functions below will mirror functions above, but for a static scheduler,
-//no dynamic memory allocation needed
-
-void schedulerInit_static();
-void scheduleProcess_static(proc process);
-void procSwitch_static();
-void procAwaken_static();
-void killProcess_static();
-
-proc getNextProcess_s();
-proc getLastProcess_s();
-proc getNextSleepProcess_s();
-proc getLastSleepProcess_s();
-proc getRunningProcess_s();
 
 #endif

@@ -36,28 +36,23 @@ int kernel_init(void *name)
 	free_memallc(memallc(0x1000));
 
 	schedulerInit();
-	context emptyContext0 =
-		(context){ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	proc *proc0 = memallc(sizeof(proc));
-	proc0->proc_context = emptyContext0;
-	proc0->proc_ID = 0;
-	proc0->proc_state = RUNNING;
-	scheduleProcess(proc0);
-
-	uart_puts("static\r\n");
-
-	schedulerInit_static();
 	context emptyContext =
 		(context){ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	proc proc1 = (proc){ READY, emptyContext, 1 };
-	uart_puts("Example process proc1 created.\r\n");
-	scheduleProcess_static(proc1);
-	uart_puts("Example process proc2 created.\r\n");
-	proc proc2 = (proc){ SLEEPING, emptyContext, 2 };
-	scheduleProcess_static(proc2);
-	procSwitch_static();
-	procAwaken_static();
-	killProcess_static();
+	proc *proc0 = memallc(sizeof(proc));
+	proc0->proc_context = emptyContext;
+	proc0->proc_ID = 0;
+	proc0->proc_state = READY;
+	uart_puts("Example process proc0 created.\r\n");
+	scheduleProcess(proc0);
+
+	proc *proc3 = memallc(sizeof(proc));
+	proc3->proc_context = emptyContext;
+	proc3->proc_ID = 3;
+	proc3->proc_state = SLEEPING;
+	uart_puts("Example process proc3 created.\r\n");
+	scheduleProcess(proc3);
+
+	procSwitch();
 
 	return 0;
 }

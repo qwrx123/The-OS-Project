@@ -15,15 +15,6 @@ static scheduleNode *readyQueue;
 static scheduleNode *sleepQueue;
 static scheduleNode *currentProc;
 
-#define MAX_SCHEDULED_PROCESSES 24
-static proc currentProc_s;
-static proc readyQueue_s[MAX_SCHEDULED_PROCESSES];
-static int readyQueue_head;
-static int readyQueue_tail;
-static proc sleepQueue_s[MAX_SCHEDULED_PROCESSES];
-static int sleepQueue_head;
-static int sleepQueue_tail;
-
 void schedulerInit()
 {
 	uart_puts("scheduler: Initializing scheduler.\r\n");
@@ -67,7 +58,8 @@ void scheduleProcess(proc *process)
 		{
 			process->proc_state = RUNNING;
 			currentProc = node;
-			uart_puts("scheduler: Process running.\r\n");
+			uart_puts(
+				"scheduler: Empty process field. Process set to currently running.\r\n");
 		}
 		else
 		{
@@ -119,6 +111,20 @@ void procSwitch()
 	currentProc = dequeueProc(readyQueue->next);
 
 	uart_puts("scheduler: Switched to next available process\r\n");
+}
+
+void awakenProcess()
+{
+	if (sleepQueue->next == sleepQueue)
+	{
+		uart_puts(
+			"schedule: No processes waiting in sleep queue to awaken.\r\n");
+		return;
+	}
+
+	uart_puts("scheduler: Awakening sleeping process.\r\n");
+	sleepQueue->next->process->proc_state = READY;
+	rescheduleProcess(dequeueProc(sleepQueue->next));
 }
 
 void killScheduler()
@@ -207,158 +213,4 @@ scheduleNode *getLastSleepProcess()
 scheduleNode *getRunningProcess()
 {
 	return currentProc;
-}
-
-void schedulerInit_static()
-{
-	uart_puts("scheduler: Setting up queues.\r\n");
-	readyQueue_head = 0;
-	readyQueue_tail = 0;
-	sleepQueue_head = 0;
-	sleepQueue_tail = 0;
-	uart_puts("scheduler: Setting initial process.\r\n");
-	context c = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	currentProc_s = (proc){ RUNNING, c, -1 };
-	uart_puts("scheduler: Scheduler initiallized.\r\n");
-}
-
-int rqIsFull()
-{
-	return readyQueue_head ==
-	       (readyQueue_tail + 1) % MAX_SCHEDULED_PROCESSES;
-}
-
-int rqIsEmpty()
-{
-	return readyQueue_head == readyQueue_tail;
-}
-
-int sqIsFull()
-{
-	return sleepQueue_head ==
-	       (sleepQueue_tail + 1) % MAX_SCHEDULED_PROCESSES;
-}
-
-int sqIsEmpty()
-{
-	return sleepQueue_head == sleepQueue_tail;
-}
-
-void procToReady_s(proc process)
-{
-	if (!rqIsFull())
-	{
-		readyQueue_s[readyQueue_tail++] = process;
-		uart_puts("scheduler: Process added to ready queue.\r\n");
-	}
-	else
-	{
-		uart_puts(
-			"scheduler: Ready Queue is full, process not scheduled.\r\n");
-	}
-}
-
-void procToSleep_s(proc process)
-{
-	if (!sqIsFull())
-	{
-		sleepQueue_s[sleepQueue_tail++] = process;
-		uart_puts("scheduler: Process added to sleep queue.\r\n");
-	}
-	else
-	{
-		uart_puts(
-			"scheduler: Sleep queue is full, process not scheduled.\r\n");
-	}
-}
-
-void scheduleProcess_static(proc process)
-{
-	uart_puts(
-		"scheduler: Scheduling process. Checking process state...\r\n");
-	if (process.proc_state == READY)
-	{
-		procToReady_s(process);
-	}
-	else if (process.proc_state == SLEEPING)
-	{
-		procToSleep_s(process);
-	}
-	else if (process.proc_state == ZOMBIE)
-	{
-		uart_puts(
-			"scheduler: Process is zombie, removed from scheduling.\r\n");
-	}
-}
-
-void procSwitch_static()
-{
-	uart_puts("scheduler: Preparing to swap processes\r\n");
-	if (rqIsEmpty())
-	{
-		uart_puts(
-			"scheduler: No new process to schedule. Current process remains active.\r\n");
-		return;
-	}
-
-	if (currentProc_s.proc_state == RUNNING)
-	{
-		uart_puts(
-			"scheduler: Setting \"running\" process state to \"ready\".\r\n");
-		currentProc_s.proc_state = READY;
-	}
-
-#ifndef TESTING
-	//reg_switch(currentProc_s.proc_context, readyQueue_s[readyQueue_head].proc_context);
-#endif
-
-	scheduleProcess_static(currentProc_s);
-	currentProc_s = readyQueue_s[readyQueue_head++];
-	currentProc_s.proc_state = RUNNING;
-	uart_puts("scheduler: Processes swapped, new process running.\r\n");
-}
-
-void procAwaken_static()
-{
-	if (sqIsEmpty())
-	{
-		uart_puts(
-			"scheduler: No process on sleep queue to awaken.\r\n");
-	}
-
-	uart_puts("scheduler: Awakening sleeping process.\r\n");
-	sleepQueue_s[sleepQueue_head].proc_state = READY;
-	scheduleProcess_static(sleepQueue_s[sleepQueue_head++]);
-}
-
-void killProcess_static()
-{
-	uart_puts("scheduler: Killing active process.\r\n");
-	currentProc_s.proc_state = ZOMBIE;
-	procSwitch_static();
-}
-
-proc getNextProcess_s()
-{
-	return readyQueue_s[readyQueue_head];
-}
-
-proc getLastProcess_s()
-{
-	return readyQueue_s[(readyQueue_tail - 1) % MAX_SCHEDULED_PROCESSES];
-}
-
-proc getNextSleepProcess_s()
-{
-	return sleepQueue_s[sleepQueue_head];
-}
-
-proc getLastSleepProcess_s()
-{
-	return sleepQueue_s[(sleepQueue_tail - 1) % MAX_SCHEDULED_PROCESSES];
-}
-
-proc getRunningProcess_s()
-{
-	return currentProc_s;
 }

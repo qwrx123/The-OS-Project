@@ -9,6 +9,7 @@
 #include "kernel/stddef.h"
 #include "kernel/stdint.h"
 #include "kernel/types.h"
+#include "kernel/stdlib.h"
 
 uint64_t freq = 0;
 uint64_t time = 0;
@@ -108,33 +109,6 @@ uint64_t get_timer_sec_imp()
 char *timer_to_string_imp()
 {
 	static char str_sec[20];
-	int len = 20;
 	uint64_t sec = get_timer_sec_imp();
-	int i = len - 1;
-	str_sec[i] = '\0';
-
-	if (sec == 0)
-	{
-		if (i > 0)
-		{
-			str_sec[--i] = '0';
-		}
-	}
-	else
-	{
-		while (sec > 0 && i > 0)
-		{
-			str_sec[--i] = (char)('0' + (sec % 10));
-			sec /= 10;
-		}
-	}
-
-	int j = 0;
-	while (str_sec[i] != '\0')
-	{
-		str_sec[j++] = str_sec[i++];
-	}
-	str_sec[j] = '\0';
-
-	return str_sec;
+	return itoa(sec, str_sec, 10);
 }

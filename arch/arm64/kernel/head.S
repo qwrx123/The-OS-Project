@@ -16,9 +16,6 @@ _start:
     eret
 
 el1_start:
-
-    // Clear DAIF to enable interrupts immediately
-    msr daifclr, #15
 	
 	//set stack
 	//msr SPSel, #1
@@ -50,11 +47,11 @@ el1_start:
     bl uart_puts
 
 	//Enable interrupts
-	//msr daifclr, #2
+	msr daifclr, #2
 
-	//ldr x0, =aboutToBreak
-	//bl uart_puts
-	//brk #0
+	ldr x0, =aboutToBreak
+	bl uart_puts
+	brk #0
 	
 	MOV X0, #0x00300000
 	MSR CPACR_EL1, X0

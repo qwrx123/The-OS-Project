@@ -25,42 +25,53 @@ typedef struct sched
 
 /**
  * @brief Initializes the scheduler
- * @param scheduler Pointer to the scheduler's sched struct
  */
-void schedulerInit(sched *scheduler);
+void schedulerInit();
 
 /**
  * @brief Add new process to the scheduler's queues
- * @param scheduler Pointer to sched struct
  * @param process Pointer to the new process struct to add
  */
-void scheduleProcess(sched *scheduler, proc *process);
+void scheduleProcess(proc *process);
+
+/**
+ * @brief Queue a process that already has a scheduleNode
+ * @param node Pointer to the process's associated scheduleNode
+ */
+void rescheduleProcess(scheduleNode *node);
 
 /**
  * @brief Included in header for testing while scheduleProcess segfaults. Puts schedule node (process) on the ready queue
- * @param scheduler Pointer to the sched struct
  * @param processNode Pointer to the schedule node containing the process to queue
  */
-void procToReady(sched *scheduler, scheduleNode *processNode);
+void procToReady(scheduleNode *processNode);
 
 /**
  * @brief Included in header for testing while scheduleProcess segfaults. Puts schedule node (process) on the sleep queue
- * @param scheduler Pointer to the sched struct
  * @param processNode Pointer to the schedule node containing the process to queue
  */
-void procToSleep(sched *scheduler, scheduleNode *processNode);
+void procToSleep(scheduleNode *processNode);
 
 /**
  * @brief Switches active process
- * @param scheduler Pointer to the sched struct
  */
-void procSwitch(sched *scheduler);
+void procSwitch();
+
+/**
+ * @brief Awakens a process waiting on the sleep queue.
+ */
+void awakenProcess();
+
+/**
+ * @brief Ends specified process, freeing allocated memory
+ * @param processNode Pointer to the process to kill.
+ */
+void endProcess(scheduleNode *processNode);
 
 /**
  * @brief Frees all allocated memory for the scheduler
- * @param scheduler Pointer to the sched struct
  */
-void killScheduler(sched *scheduler);
+void killScheduler();
 
 /**
  * @brief Initiallize the schedule node
@@ -84,53 +95,42 @@ void queueProc(scheduleNode *head, scheduleNode *newNode);
 scheduleNode *dequeueProc(scheduleNode *targetProc);
 
 /**
- * @brief For testing purposes. Get the next process in the ready queue
- * @param scheduler Pointer to the sched struct
- * @return Pointer to the process contained in the next schedule node
+ * @brief For testing purposes. Initiallizes the scheduler with pre-allocated scheduleNodes.
+ * @param readyQueue Pointer to the readyQueue head scheduleNode.
+ * @param sleepQueue Pointer to the sleepQueue head scheduleNode.
+ * @param curProc Pointer to the "current process" of the test.
  */
-proc *getNextProcess(sched *scheduler);
+void testingSchedulerInit(scheduleNode *ready, scheduleNode *sleep,
+			  scheduleNode *curProc);
+
+/**
+ * @brief For testing purposes. Gets the next process in the ready queue
+ * @return Pointer to the next scheduleNode on readyQueue
+ */
+scheduleNode *getNextProcess();
 
 /**
  * @brief For testing purposes. Get the process last added to the ready queue
- * @param scheduler Pointer to the sched struct
- * @return Pointer to the process contained in the last schedule node
+ * @return Pointer to the last scheduleNode on readyQueue
  */
-proc *getLastProcess(sched *scheduler);
+scheduleNode *getLastProcess();
 
 /**
  * @brief For testing purposes. Get the next process in the sleep queue
- * @param scheduler Pointer to the sched struct
- * @return Pointer to the process contained in the next schedule node
+ * @return Pointer to the next scheduleNode in sleepQueue
  */
-proc *getNextSleepProcess(sched *scheduler);
+scheduleNode *getNextSleepProcess();
 
 /**
  * @brief For testing purposes. Get the process last added to the sleep queue
- * @param scheduler Pointer to the sched struct
- * @return Pointer to the process contained in the last schedule node
+ * @return Pointer to the last scheduleNode in sleepQueue
  */
-proc *getLastSleepProcess(sched *scheduler);
+scheduleNode *getLastSleepProcess();
 
 /**
  * @brief For testing purposes. Get the currently running process of the scheduler
- * @param scheduler Pointer to the sched struct
- * @return Pointer to the currently running process
+ * @return Pointer to the currently running process's scheduleNode
  */
-proc *getRunningProcess(sched *scheduler);
-
-//functions below will mirror functions above, but for a static scheduler,
-//no dynamic memory allocation needed
-
-void schedulerInit_static();
-void scheduleProcess_static(proc process);
-void procSwitch_static();
-void procAwaken_static();
-void killProcess_static();
-
-proc getNextProcess_s();
-proc getLastProcess_s();
-proc getNextSleepProcess_s();
-proc getLastSleepProcess_s();
-proc getRunningProcess_s();
+scheduleNode *getRunningProcess();
 
 #endif

@@ -8,6 +8,7 @@
 #include "memallc.h"
 #include "scheduler.h"
 #include "proc.h"
+#include "memory.h"
 #include "timer.h"
 
 int kernel_init(void *name)
@@ -19,26 +20,44 @@ int kernel_init(void *name)
 #endif
 	init_timer();
 	enable_timer();
-	init_memallc((void *)0x400000, 0x200000);
 	if (name)
 	{
 	}
 	uart_puts("Hello world\r\n");
-	memallc(0x1000);
+	char *test = (char *)memallc(0x1000);
+	const char *test_output = "Copy to heap";
+	int i;
+	for (i = 0; test_output[i] != '\0'; i++)
+	{
+		test[i] = test_output[i];
+	}
+	test[i] = '\0';
+	uart_puts("memallc: Able to write to heap without crash\r\n");
+	uart_puts("memallc: Output written \"");
+	uart_puts(test);
+	uart_puts("\"\r\n");
 	free_memallc(memallc(0x1000));
 
-	schedulerInit_static();
+	schedulerInit();
+	uart_puts("Creating example process.\r\n");
 	context emptyContext =
 		(context){ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	proc proc1 = (proc){ READY, emptyContext, 1 };
+	proc *proc0 = memallc(sizeof(proc));
+	proc0->proc_context = emptyContext;
+	proc0->proc_ID = 0;
+	proc0->proc_state = READY;
+	uart_puts("Example process proc0 created.\r\n");
+	scheduleProcess(proc0);
+	uart_puts("Creating example process.\r\n");
+	proc *proc1 = memallc(sizeof(proc));
+	proc1->proc_context = emptyContext;
+	proc1->proc_ID = 1;
+	proc1->proc_state = SLEEPING;
 	uart_puts("Example process proc1 created.\r\n");
-	scheduleProcess_static(proc1);
-	uart_puts("Example process proc2 created.\r\n");
-	proc proc2 = (proc){ SLEEPING, emptyContext, 2 };
-	scheduleProcess_static(proc2);
-	procSwitch_static();
-	procAwaken_static();
-	killProcess_static();
+	scheduleProcess(proc1);
+	procSwitch();
+	awakenProcess();
+	procSwitch();
 
 	return 0;
 }

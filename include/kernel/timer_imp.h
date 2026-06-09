@@ -1,4 +1,10 @@
-#include "kernel/types.h"
+/*
+ * Copyright (c) [2026] Jorden Wilsey Bacso
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+ #include "kernel/types.h"
 
 extern uint64_t freq;
 extern uint64_t time;

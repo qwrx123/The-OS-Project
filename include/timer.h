@@ -9,17 +9,6 @@
 
 #include "kernel/types.h"
 
-/*
-typedef struct timer
-{
-    uint64_t freq;
-    uint64_t time;
-    uint64_t interrupt;
-    uint64_t sec;
-    int hardware;
-} timer_t;
-*/
-
 /**
  * @brief Initializes the timer.
  */

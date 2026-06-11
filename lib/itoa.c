@@ -36,6 +36,7 @@ char *itoa(int value, char *str, int base)
 			single_digit = temp_char;
 		}
 		str[i] = single_digit;
+		str[i + 1] = '\0';
 	}
 	if (str[0] == '\0')
 	{

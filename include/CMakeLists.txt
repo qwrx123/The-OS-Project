@@ -8,6 +8,7 @@ set(FILE_LIST
     memallc.h
     scheduler.h
     proc.h
+    timer.h
 )
 
 registerFilesToFormat(FILES ${FILE_LIST})

@@ -9,9 +9,10 @@ add_library(
     uart.c
     memallc.c
     $<TARGET_OBJECTS:scheduler>
+    timer.c
 )
 
-registerFilesToFormat(FILES uart.c memallc.c)
+registerFilesToFormat(FILES uart.c memallc.c timer.c)
 
 target_compile_options(driver PRIVATE
   -nostdlib 

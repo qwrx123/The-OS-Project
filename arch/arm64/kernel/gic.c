@@ -51,6 +51,18 @@
 */
 #define GICR_WAKER (*(volatile uint32_t *)(GICR_BASE_PHYS + 0x0014))
 
+/**
+ * @brief GICR_SGI_BASE
+ * The private SGI/PPI frame offset within the core's Redistributor.
+ */
+#define GICR_SGI_BASE (GICR_BASE_PHYS + 0x10000)
+
+#define GICR_IGROUPR0 (*(volatile uint32_t *)(GICR_SGI_BASE + 0x0080))
+#define GICR_ISENABLER0 (*(volatile uint32_t *)(GICR_SGI_BASE + 0x0100))
+#define GICR_ICENABLER0 (*(volatile uint32_t *)(GICR_SGI_BASE + 0x0180))
+#define GICR_IPRIORITYR_BYTE(n) \
+	(*(volatile uint8_t *)(GICR_SGI_BASE + 0x0400 + (n)))
+
 void gic_init()
 {
 	uint32_t waker_val;
@@ -75,29 +87,43 @@ void gic_init()
 
 	//enable irqs we need
 	gic_enable_irq(UART_IRQ);
+	gic_enable_irq(TIMER_IRQ);
 }
 
 void gic_enable_irq(uint32_t irq)
 {
-	uint32_t reg = irq / 32;
 	uint32_t bit = 1u << (irq % 32);
 
 	if (irq >= 32)
 	{
-		GICD_IGROUPR(irq / 32) |= bit;
+		uint32_t reg = irq / 32;
+		GICD_IGROUPR(reg) |= bit;
 		GICD_IROUTER(irq) = mpidr_affinity();
 		GICD_IPRIORITYR_BYTE(irq) = 0x80;
+		GICD_ISENABLER(reg) = bit;
 	}
-
-	GICD_ISENABLER(reg) |= bit;
+	else
+	{
+		GICR_IGROUPR0 |= bit;
+		GICR_IPRIORITYR_BYTE(irq) = 0x80;
+		GICR_ISENABLER0 = bit;
+	}
 	gic_isb();
 }
 
 void gic_disable_irq(uint32_t irq)
 {
-	uint32_t reg = (irq / 32);
 	uint32_t bit = 1u << (irq % 32);
-	GICD_ICENABLER(reg) = bit;
+
+	if (irq >= 32)
+	{
+		GICD_ICENABLER(irq / 32) = bit;
+	}
+	else
+	{
+		GICR_ICENABLER0 = bit;
+	}
+	gic_isb();
 }
 
 uint32_t gic_get_active_irq()

@@ -112,3 +112,38 @@ TEST(itoa_test, negative_INT_MIN_requires_minus)
 	itoa((-2147483647 - 1), buf, 10);
 	EXPECT_STREQ("-2147483648", buf);
 }
+
+TEST(itoa_test, no_clear_buffer_between_uses)
+{
+	char buf[32] = { 0 };
+
+	itoa(9, buf, 10);
+	EXPECT_STREQ("9", buf);
+
+	itoa(10, buf, 10);
+	EXPECT_STREQ("10", buf);
+
+	itoa(99, buf, 10);
+	EXPECT_STREQ("99", buf);
+
+	itoa(100, buf, 10);
+	EXPECT_STREQ("100", buf);
+
+	itoa(101, buf, 10);
+	EXPECT_STREQ("101", buf);
+
+	itoa(999, buf, 10);
+	EXPECT_STREQ("999", buf);
+
+	itoa(1000, buf, 10);
+	EXPECT_STREQ("1000", buf);
+
+	itoa(12345, buf, 10);
+	EXPECT_STREQ("12345", buf);
+
+	itoa(7, buf, 10);
+	EXPECT_STREQ("7", buf);
+
+	itoa(0, buf, 10);
+	EXPECT_STREQ("0", buf);
+}

@@ -9,6 +9,7 @@
 #include "scheduler.h"
 #include "proc.h"
 #include "memory.h"
+#include "timer.h"
 
 int kernel_init(void *name)
 {
@@ -17,6 +18,8 @@ int kernel_init(void *name)
 #else
 	uart_init(0, id_16550);
 #endif
+	init_timer();
+	enable_timer();
 	if (name)
 	{
 	}

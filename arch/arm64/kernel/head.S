@@ -16,7 +16,7 @@ _start:
     eret
 
 el1_start:
-
+	
 	//set stack
 	//msr SPSel, #1
 	ldr x0, =_stack_top

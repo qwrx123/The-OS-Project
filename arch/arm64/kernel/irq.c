@@ -8,6 +8,7 @@
 #include "gic.h"
 #include "uart.h"
 #include "stdlib.h"
+#include "timer.h"
 
 extern void uart_puts(const char *s);
 
@@ -30,6 +31,10 @@ void el1_irq_handler(/*struct pt_regs *regs*/)
 		uart_puts("Key pressed is :");
 		uart_putc(grabbed_key);
 		uart_puts("\r\n");
+	}
+	else if (irq == TIMER_IRQ)
+	{
+		timer_interrupt();
 	}
 	gic_eoi(irq);
 }

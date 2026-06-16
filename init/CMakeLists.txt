@@ -7,9 +7,11 @@ add_library(
     init
     STATIC
     main.c
+    demo.c
 )
 
-registerFilesToFormat(FILES main.c)
+registerFilesToFormat(FILES main.c
+                        demo.c)
 
 target_compile_options(init PRIVATE
   -nostdlib 

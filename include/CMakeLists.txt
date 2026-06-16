@@ -9,6 +9,7 @@ set(FILE_LIST
     scheduler.h
     proc.h
     timer.h
+    demo.h
 )
 
 registerFilesToFormat(FILES ${FILE_LIST})

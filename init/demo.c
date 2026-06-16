@@ -11,7 +11,7 @@
 
 void uart_demo(char input)
 {
-	static char command[20] = { 0 };
+	static char command[1028] = { 0 };
 	static uint32_t command_location = 0;
 	if (input == '\r')
 	{

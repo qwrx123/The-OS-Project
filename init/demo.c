@@ -8,6 +8,8 @@
 #include "kernel/types.h"
 #include "kernel/stdlib.h"
 #include "uart.h"
+#include "scheduler.h"
+#include "kernel/timer_imp.h"
 
 void uart_demo(char input)
 {
@@ -28,5 +30,18 @@ void uart_demo(char input)
 	{
 		command[command_location++] = input;
 		command[command_location] = '\0';
+	}
+}
+
+void sched_demo()
+{
+	if (get_timer_sec_imp() % 8 == 0)
+	{
+		procSwitch();
+		char p[4];
+		itoa(getRunningProcess()->process->proc_ID, p, 10);
+		uart_puts("scheduler: Now running ");
+		uart_puts(p);
+		uart_puts("\r\n");
 	}
 }

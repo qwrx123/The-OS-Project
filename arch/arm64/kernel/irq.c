@@ -38,6 +38,8 @@ void el1_irq_handler(/*struct pt_regs *regs*/)
 	else if (irq == TIMER_IRQ)
 	{
 		timer_interrupt();
+
+		sched_demo();
 	}
 	gic_eoi(irq);
 }

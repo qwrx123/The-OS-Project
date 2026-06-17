@@ -14,4 +14,9 @@
  */
 void uart_demo(char input);
 
+/**
+ * @brief This function is to demo schedule switching connected to the timer interrupts.
+ */
+void sched_demo();
+
 #endif
